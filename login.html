@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MJC Portal V.2 - Login</title>
+    <link rel="stylesheet" href="login-styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">MJC Portal V.2</div>
+    </div>
+    
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="background-image"></div>
+            <div class="login-form">
+                <h2>LOG-IN</h2>
+                <div class="form-group">
+                    <label for="username">User Name</label>
+                    <input type="text" id="username" name="username" placeholder="User Name">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password">
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Login page script
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.querySelector('.login-form');
+            const loginBtn = document.querySelector('.login-btn');
+            
+            // Handle login button click
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // Basic validation
+                if (!username || !password) {
+                    alert('Please enter both username and password');
+                    return;
+                }
+                
+                // Check against admin credentials
+                if (username === 'admin' && password === 'admin123') {
+                    // Set login data in sessionStorage
+                    sessionStorage.setItem('loggedIn', 'true');
+                    sessionStorage.setItem('username', username);
+                    sessionStorage.setItem('isAdmin', 'true');
+                    
+                    // Show login success message
+                    const loginMessage = document.createElement('div');
+                    loginMessage.className = 'login-message';
+                    loginMessage.textContent = 'Login successful! Redirecting to admin page...';
+                    document.querySelector('.login-form').appendChild(loginMessage);
+                    
+                    // Redirect to main page
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; // Redirect to main page
+                    }, 1000);
+                } else {
+                    // Show error message
+                    let errorMessage = document.querySelector('.error-message');
+                    
+                    if (!errorMessage) {
+                        errorMessage = document.createElement('div');
+                        errorMessage.className = 'error-message';
+                        document.querySelector('.login-form').appendChild(errorMessage);
+                    }
+                    
+                    errorMessage.textContent = 'Invalid username or password. Please try again.';
+                    
+                    // Clear password field
+                    document.getElementById('password').value = '';
+                    document.getElementById('password').focus();
+                }
+            });
+            
+            // Handle Enter key press
+            loginForm.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+            
+            // Focus on username field when page loads
+            document.getElementById('username').focus();
+        });
+    </script>
+</body>
+</html>
