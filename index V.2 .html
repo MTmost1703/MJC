@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MJC Portal V.2</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="burger-menu" id="burger-menu">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            MJC Portal V.2
+        </div>
+        <div class="nav-buttons">
+            <a href="#" class="nav-button">ADMIN</a>
+            <span style="color:white; margin: 0 5px; display: inline-block; vertical-align: middle;">|</span>
+            <a href="#" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Master Menu -->
+            <div class="menu-item" data-menu="master">
+                <span>Master</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="master-submenu">
+                <div class="submenu-item">Branch</div>
+                <div class="submenu-item">Branch Inter</div>
+                <div class="submenu-item">Movie</div>
+                <div class="submenu-item">Branch Manager</div>
+                <div class="submenu-item">Branch FilmHire</div>
+                <div class="submenu-item">Distributor FilmHire</div>
+                <div class="submenu-item">Tier Branch</div>
+                <div class="submenu-item">Tier Item</div>
+            </div>
+            
+            <!-- Account Menu -->
+            <div class="menu-item" data-menu="account">
+                <span>Account</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="account-submenu">
+                <div class="submenu-item">AR Revenue Sale</div>
+                <div class="submenu-item">AR Revenue Sale (On Cloud)</div>
+                <div class="submenu-item">Bowling AR Revenue Sale</div>
+                <div class="submenu-item">Stock Receipt</div>
+                <div class="submenu-item">Stock Receipt (On Cloud)</div>
+                <div class="submenu-item">Stock (On Cloud)</div>
+                <div class="submenu-item">Checker Report</div>
+                <div class="submenu-item">Landlord Report ACC</div>
+                <div class="submenu-item">Vendor Payment</div>
+                <div class="submenu-item">Film Hire Setting</div>
+                <div class="submenu-item">Film Hire Report</div>
+                <div class="submenu-item">Complimentary Upgrade Report</div>
+            </div>
+            
+            <!-- Operation Menu -->
+            <div class="menu-item" data-menu="operation">
+                <span>Operation</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="operation-submenu">
+                <div class="submenu-item">RealTime (On Cloud)</div>
+                <div class="submenu-item">RealTime (Inter)</div>
+                <div class="submenu-item">Price Card</div>
+                <div class="submenu-item">Voucher Redeem</div>
+                <div class="submenu-item">Landlord Branch</div>
+                <div class="submenu-item">Landlord Report</div>
+                <div class="submenu-item">Checker Branch</div>
+                <div class="submenu-item">Random Seat</div>
+                <div class="submenu-item">Concession Center</div>
+                <div class="submenu-item">Concession Report</div>
+                <div class="submenu-item">Payment Report</div>
+            </div>
+            
+            <!-- Embassy Menu -->
+            <div class="menu-item" data-menu="embassy">
+                <span>Embassy</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="embassy-submenu">
+                <div class="submenu-item">Revenue</div>
+                <div class="submenu-item">Real Time</div>
+                <div class="submenu-item">Summary Report</div>
+            </div>
+            
+            <!-- IT Menu -->
+            <div class="menu-item" data-menu="it">
+                <span>IT</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="it-submenu">
+                <div class="submenu-item">Branch Close</div>
+                <div class="submenu-item">Branch Execute Custom</div>
+                <div class="submenu-item">Branch Custom View</div>
+                <div class="submenu-item">CPC Manage Account</div>
+            </div>
+            
+            <!-- BOT Menu -->
+            <div class="menu-item" data-menu="bot">
+                <span>BOT</span>
+                <span class="menu-arrow"></span>
+            </div>
+            
+            <!-- MCash Menu -->
+            <div class="menu-item" data-menu="mcash">
+                <span>MCash</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="mcash-submenu">
+                <div class="submenu-item">Abnormal Report</div>
+                <div class="submenu-item">Encrypted-PIN</div>
+                
+            </div>
+            
+            <!-- MPass MGen Menu -->
+            <div class="menu-item" data-menu="mpass">
+                <span>MPass MGen</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="mpass-submenu">
+                <div class="submenu-item">Repair Quick Pay</div>
+                <div class="submenu-item">Log Card Exp</div>
+                <div class="submenu-item">Log Card Replace</div>
+                <div class="submenu-item">Log Recurring</div>
+                <div class="submenu-item">Log Recurring (Re-Run)</div>
+                <div class="submenu-item">Member Log</div>
+                <div class="submenu-item">Loyalty Offline</div>
+                <div class="submenu-item">Promo Recurring</div>
+                <div class="submenu-item">Clear Recog</div>
+                <div class="submenu-item">Members Transaction Report</div>
+            </div>
+            
+            <!-- MGen Summary (Thai) Menu -->
+            <div class="menu-item" data-menu="mgem-thai">
+                <span>MGen Summary (Thai)</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="mgem-thai-submenu">
+                <div class="submenu-item">Expiry Point by Club</div>
+                <div class="submenu-item">Point by Branch</div>
+                <div class="submenu-item">Point by Club</div>
+            </div>
+            
+            <!-- MGen Summary (Inter) Menu -->
+            <div class="menu-item" data-menu="mgen-inter">
+                <span>MGen Summary (Inter)</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="mgen-inter-submenu">
+                <div class="submenu-item">Expiry Point by Club (Inter)</div>
+                <div class="submenu-item">Point by Branch (Inter)</div>
+                <div class="submenu-item">Point by Club (Inter)</div>
+            </div>
+            
+            <!-- MGen Card Fee (Thai) Menu -->
+            <div class="menu-item" data-menu="card-fee-thai">
+                <span>MGen Card Fee (Thai)</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="card-fee-thai-submenu">
+                <div class="submenu-item">MKT Type</div>
+                <div class="submenu-item">Club</div>
+                <div class="submenu-item">Member Type</div>
+                <div class="submenu-item">Item</div>
+                <div class="submenu-item">Transaction</div>
+                <div class="submenu-item">Summary</div>
+                <div class="submenu-item">Transaction Summary</div>
+            </div>
+            
+            <!-- MGen Card Fee (Inter) Menu -->
+            <div class="menu-item" data-menu="card-fee-inter">
+                <span>MGen Card Fee (Inter)</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="card-fee-inter-submenu">
+                <div class="submenu-item">MKT Type</div>
+                <div class="submenu-item">Club</div>
+                <div class="submenu-item">Member Type</div>
+                <div class="submenu-item">Item</div>
+                <div class="submenu-item">Transaction</div>
+                <div class="submenu-item">Summary</div>
+                <div class="submenu-item">Transaction Summary</div>
+            </div>
+            
+            <!-- Bowling Menu -->
+            <div class="menu-item" data-menu="bowling">
+                <span>Bowling</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="bowling-submenu">
+                <div class="submenu-item">Revenue</div>
+                <div class="submenu-item">Sum On Date</div>
+                <div class="submenu-item">Booking Report</div>
+                <div class="submenu-item">VTEC Report</div>
+                <div class="submenu-item">VTEC Report (Branch)</div>
+                <div class="submenu-item">VTEC Inter Report (Branch)</div>
+                <div class="submenu-item">Bowling Landlord Report</div>
+                <div class="submenu-item">Bowling NonSale Report</div>
+                <div class="submenu-item">Bowling Package Report</div>
+                <div class="submenu-item">Bowling Usage Report</div>
+                <div class="submenu-item">Bowling Sale Report</div>
+                <div class="submenu-item">Bowling Balance Report</div>
+                <div class="submenu-item">Bowling Summary Sale Report</div>
+                <div class="submenu-item">Bowling Voucher Payment Report</div>
+                
+            </div>
+            
+            <!-- PSC Menu -->
+            <div class="menu-item" data-menu="psc">
+                <span>PSC</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="psc-submenu">
+                <div class="submenu-item">Blacklist View</div>
+            </div>
+            
+            <!-- Admin Permission Menu -->
+            <div class="menu-item" data-menu="admin">
+                <span>Admin Permission</span>
+                <span class="menu-arrow"></span>
+            </div>
+            <div class="submenu" id="admin-submenu">
+                <div class="submenu-item">Permission User</div>
+                <div class="submenu-item">Permission Group User</div>
+                <div class="submenu-item">Permission Group Menu</div>
+                <div class="submenu-item">Permission Menu</div>
+                <div class="submenu-item">Permission Menu Detail</div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Content will be displayed here -->
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
