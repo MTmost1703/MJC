@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MJC Portal V.2</title>
+    <title>MJC Portal V.2 - Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,16 +15,18 @@
                 <div></div>
                 <div></div>
             </div>
-            MJC Portal V.2
+            <img src="images/Major_Logo.png" alt="MJC Logo" class="logo-image">
+            <span class="logo-text">MJC Portal V.2</span>
         </div>
-        <div class="nav-buttons">
-            <a href="#" class="nav-button">ADMIN</a>
-            <span style="color:white; margin: 0 5px; display: inline-block; vertical-align: middle;">|</span>
-            <a href="#" class="logout-btn">Logout</a>
+        <div class="nav-buttons" id="nav-buttons">
+            <a href="#" class="nav-button" id="username-display">ADMIN</a>
+            <span style="color:rgb(255, 255, 255); margin: 0 5px; display: inline-block; vertical-align: middle;">|</span>
+            <a href="#" class="logout-btn" id="logout-btn">Logout</a>
         </div>
     </div>
-    <!-- Main Container -->
-    <div class="container">
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="container">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <!-- Master Menu -->
@@ -42,7 +44,7 @@
                 <div class="submenu-item">Tier Branch</div>
                 <div class="submenu-item">Tier Item</div>
             </div>
-            
+           
             <!-- Account Menu -->
             <div class="menu-item" data-menu="account">
                 <span>Account</span>
@@ -62,7 +64,7 @@
                 <div class="submenu-item">Film Hire Report</div>
                 <div class="submenu-item">Complimentary Upgrade Report</div>
             </div>
-            
+           
             <!-- Operation Menu -->
             <div class="menu-item" data-menu="operation">
                 <span>Operation</span>
@@ -81,7 +83,7 @@
                 <div class="submenu-item">Concession Report</div>
                 <div class="submenu-item">Payment Report</div>
             </div>
-            
+           
             <!-- Embassy Menu -->
             <div class="menu-item" data-menu="embassy">
                 <span>Embassy</span>
@@ -90,12 +92,12 @@
             <div class="submenu" id="embassy-submenu">
                 <div class="submenu-item">Revenue</div>
                 <div class="submenu-item">Real Time</div>
-                <div class="submenu-item">Price Card</div>
+                <div class="submenu-item">Summary Report</div>
             </div>
-            
+           
             <!-- IT Menu -->
             <div class="menu-item" data-menu="it">
-                <span>IT</span>
+                <span>IT (App)</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="it-submenu">
@@ -104,7 +106,7 @@
                 <div class="submenu-item">Branch Custom View</div>
                 <div class="submenu-item">CPC Manage Account</div>
             </div>
-            
+           
             <!-- BOT Menu -->
             <div class="menu-item" data-menu="bot">
                 <span>BOT</span>
@@ -122,7 +124,7 @@
                 <div class="submenu-item">E-Money</div>
                 <div class="submenu-item">E-Money by Value</div>
             </div>
-            
+           
             <!-- MCash Menu -->
             <div class="menu-item" data-menu="mcash">
                 <span>MCash</span>
@@ -131,19 +133,11 @@
             <div class="submenu" id="mcash-submenu">
                 <div class="submenu-item">Abnormal Report</div>
                 <div class="submenu-item">Encrypted-PIN</div>
-                <div class="submenu-item">Log Card Replace</div>
-                <div class="submenu-item">Log Recurring</div>
-                <div class="submenu-item">Log Recurring (Re-Run)</div>
-                <div class="submenu-item">Member Log</div>
-                <div class="submenu-item">Loyalty Offline</div>
-                <div class="submenu-item">Promo Recurring</div>
-                <div class="submenu-item">Clear Recog</div>
-                <div class="submenu-item">Members Transaction Report</div>
             </div>
-            
-            <!-- MPass MGem Menu -->
+           
+            <!-- MPass MGen Menu -->
             <div class="menu-item" data-menu="mpass">
-                <span>MPass MGem</span>
+                <span>MPass MGen</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mpass-submenu">
@@ -155,36 +149,38 @@
                 <div class="submenu-item">Member Log</div>
                 <div class="submenu-item">Loyalty Offline</div>
                 <div class="submenu-item">Promo Recurring</div>
+                <div class="submenu-item">Clear Recog</div>
+                <div class="submenu-item">Members Transaction Report</div>
             </div>
-            
-            <!-- MGem Summary (Thai) Menu -->
-            <div class="menu-item" data-menu="mgem-thai">
-                <span>MGem Summary (Thai)</span>
+           
+            <!-- MGen Summary (Thai) Menu -->
+            <div class="menu-item" data-menu="mgen-thai">
+                <span>MGen Summary (Thai)</span>
                 <span class="menu-arrow"></span>
             </div>
-            <div class="submenu" id="mgem-thai-submenu">
+            <div class="submenu" id="mgen-thai-submenu">
                 <div class="submenu-item">Expiry Point by Club</div>
                 <div class="submenu-item">Point by Branch</div>
                 <div class="submenu-item">Point by Club</div>
             </div>
-            
-            <!-- MGem Summary (Inter) Menu -->
-            <div class="menu-item" data-menu="mgem-inter">
-                <span>MGem Summary (Inter)</span>
+           
+            <!-- MGen Summary (Inter) Menu -->
+            <div class="menu-item" data-menu="mgen-inter">
+                <span>MGen Summary (Inter)</span>
                 <span class="menu-arrow"></span>
             </div>
-            <div class="submenu" id="mgem-inter-submenu">
+            <div class="submenu" id="mgen-inter-submenu">
                 <div class="submenu-item">Expiry Point by Club (Inter)</div>
                 <div class="submenu-item">Point by Branch (Inter)</div>
                 <div class="submenu-item">Point by Club (Inter)</div>
             </div>
-            
-            <!-- MGem Card Fee (Thai) Menu -->
-            <div class="menu-item" data-menu="card-fee-thai">
-                <span>MGem Card Fee (Thai)</span>
+           
+            <!-- MGen Card Fee (Thai) Menu -->
+            <div class="menu-item" data-menu="mgen-card-fee-thai">
+                <span>MGen Card Fee (Thai)</span>
                 <span class="menu-arrow"></span>
             </div>
-            <div class="submenu" id="card-fee-thai-submenu">
+            <div class="submenu" id="mgen-card-fee-thai-submenu">
                 <div class="submenu-item">MKT Type</div>
                 <div class="submenu-item">Club</div>
                 <div class="submenu-item">Member Type</div>
@@ -193,22 +189,21 @@
                 <div class="submenu-item">Summary</div>
                 <div class="submenu-item">Transaction Summary</div>
             </div>
-            
-            <!-- MGem Card Fee (Inter) Menu -->
-            <div class="menu-item" data-menu="card-fee-inter">
-                <span>MGem Card Fee (Inter)</span>
+           
+            <!-- MGen Card Fee (Inter) Menu -->
+            <div class="menu-item" data-menu="mgen-card-fee-inter">
+                <span>MGen Card Fee (Inter)</span>
                 <span class="menu-arrow"></span>
             </div>
-            <div class="submenu" id="card-fee-inter-submenu">
+            <div class="submenu" id="mgen-card-fee-inter-submenu">
                 <div class="submenu-item">MKT Type</div>
                 <div class="submenu-item">Club</div>
                 <div class="submenu-item">Member Type</div>
                 <div class="submenu-item">Item</div>
                 <div class="submenu-item">Transaction</div>
                 <div class="submenu-item">Summary</div>
-                <div class="submenu-item">Transaction Summary</div>
             </div>
-            
+           
             <!-- Bowling Menu -->
             <div class="menu-item" data-menu="bowling">
                 <span>Bowling</span>
@@ -230,7 +225,7 @@
                 <div class="submenu-item">Bowling Summary Sale Report</div>
                 <div class="submenu-item">Bowling Voucher Payment Report</div>
             </div>
-            
+           
             <!-- PSC Menu -->
             <div class="menu-item" data-menu="psc">
                 <span>PSC</span>
@@ -239,13 +234,13 @@
             <div class="submenu" id="psc-submenu">
                 <div class="submenu-item">Blacklist View</div>
             </div>
-            
+           
             <!-- Admin Permission Menu -->
-            <div class="menu-item" data-menu="admin">
+            <div class="menu-item" data-menu="admin permission">
                 <span>Admin Permission</span>
                 <span class="menu-arrow"></span>
             </div>
-            <div class="submenu" id="admin-submenu">
+            <div class="submenu" id="admin permission-submenu">
                 <div class="submenu-item">Permission User</div>
                 <div class="submenu-item">Permission Group User</div>
                 <div class="submenu-item">Permission Group Menu</div>
@@ -253,13 +248,14 @@
                 <div class="submenu-item">Permission Menu Detail</div>
             </div>
         </div>
-        
+       
         <!-- Content Area -->
-        <div class="content">
-            <!-- Content will be displayed here -->
+        <div class="content" id="content">
+            <!-- Content will be loaded dynamically -->
+            <div class="loading">Loading content...</div>
         </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
