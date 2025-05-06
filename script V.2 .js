@@ -1,175 +1,446 @@
-// Check if user is logged in
 document.addEventListener('DOMContentLoaded', function() {
-    // Check login status
-    const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
-    const username = sessionStorage.getItem('username');
-    const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-    
-    // If not logged in, redirect to login page
-    if (!isLoggedIn) {
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    // Add logout functionality
-    setupLogoutButton();
-    
-    // Display username if available
-    if (username) {
-        const adminButton = document.querySelector('.nav-button');
-        if (adminButton) {
-            adminButton.textContent = username.toUpperCase();
-        }
-    }
-    
-    // If logged in but not admin, show limited access message
-    if (!isAdmin) {
-        const contentArea = document.querySelector('.content');
-        if (contentArea) {
-            contentArea.innerHTML = `
-                <h2>Limited Access</h2>
-                <div class="content-box">
-                    <p>You are logged in as ${username}, but you don't have administrator privileges.</p>
-                    <p>Please contact your system administrator for assistance.</p>
-                </div>
-            `;
-        }
-        
-        // Hide sidebar for non-admin users
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.style.display = 'none';
-        }
-        
-        return;
-    }
-    
-    // Initialize the portal for admin users
-    initializePortal();
-});
-
-// Setup the logout button functionality
-function setupLogoutButton() {
-    const logoutBtn = document.querySelector('.logout-btn');
-    
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Clear session data
-            sessionStorage.removeItem('loggedIn');
-            sessionStorage.removeItem('username');
-            sessionStorage.removeItem('isAdmin');
-            
-            // Redirect to login page
-            window.location.href = 'login.html';
-        });
-    }
-}
-
-// Original portal functionality
-function initializePortal() {
-    // Toggle sidebar with burger menu
+    // Elements - global references
     const burgerMenu = document.getElementById('burger-menu');
     const sidebar = document.getElementById('sidebar');
-
-    if (burgerMenu && sidebar) {
-        burgerMenu.addEventListener('click', function() {
-            this.classList.toggle('active');
-            sidebar.classList.toggle('active');
+    const content = document.getElementById('content');
+    const logoutBtn = document.getElementById('logout-btn');
+    const usernameDisplay = document.getElementById('username-display');
+    
+    // Check login status - ตรวจสอบสถานะล็อกอินก่อนแสดงแดชบอร์ด
+    checkLoginStatus();
+    
+    // Initialize dashboard functionality
+    initializeDashboard();
+    
+    // ======== LOGIN STATE MANAGEMENT ========
+    // Function to check login status
+    function checkLoginStatus() {
+        const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
+        const storedUsername = sessionStorage.getItem('username');
+        const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+        
+        console.log("Checking login status:", isLoggedIn ? "Logged in" : "Not logged in");
+        
+        if (!isLoggedIn) {
+            // Redirect to login page if not logged in
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Update username display
+        if (usernameDisplay && storedUsername) {
+            usernameDisplay.textContent = storedUsername.toUpperCase();
+            usernameDisplay.title = storedUsername;
+        }
+        
+        // Show default content for admin
+        if (isAdmin) {
+            // Show Master submenu by default when logged in
+            const defaultMenu = document.querySelector('[data-menu="master"]');
+            const defaultSubmenu = document.getElementById('master-submenu');
+            
+            if (defaultMenu && defaultSubmenu) {
+                defaultMenu.classList.add('active');
+                defaultSubmenu.classList.add('active');
+            }
+            
+            // Load default content
+            loadContent('master', 'Branch');
+        } else {
+            // If not admin, show limited access message
+            if (content) {
+                content.innerHTML = `
+                    <h2>Limited Access</h2>
+                    <div class="content-box">
+                        <p>You are logged in as ${storedUsername}, but you don't have administrator privileges.</p>
+                        <p>Please contact your system administrator for assistance.</p>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    // Function to handle logout
+    function handleLogout(e) {
+        if (e) e.preventDefault();
+        
+        console.log("Logging out...");
+        
+        // Clear session data
+        sessionStorage.removeItem('loggedIn');
+        sessionStorage.removeItem('username');
+        sessionStorage.removeItem('isAdmin');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    }
+    
+    // ======== DASHBOARD INITIALIZATION ========
+    // Function to initialize dashboard functionality
+    function initializeDashboard() {
+        // Toggle sidebar with burger menu
+        if (burgerMenu && sidebar) {
+            burgerMenu.addEventListener('click', function() {
+                this.classList.toggle('active');
+                sidebar.classList.toggle('active');
+            });
+        }
+        
+        // Toggle submenu on menu item click
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const menuName = this.getAttribute('data-menu');
+                const submenu = document.getElementById(`${menuName}-submenu`);
+                
+                // ตรวจสอบว่า submenu นี้กำลังแสดงอยู่หรือไม่
+                const isActive = submenu && submenu.classList.contains('active');
+                
+                // ปิดทุก submenu และลบคลาส active จากทุกเมนู (ยกเว้นเมนูปัจจุบัน)
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    if (menu.id !== `${menuName}-submenu`) {
+                        menu.classList.remove('active');
+                    }
+                });
+                
+                document.querySelectorAll('.menu-item').forEach(menuItem => {
+                    if (menuItem !== this) {
+                        menuItem.classList.remove('active');
+                    }
+                });
+                
+                // สลับ active state ของ submenu ปัจจุบัน (เปิด/ปิด)
+                if (submenu) {
+                    submenu.classList.toggle('active');
+                    this.classList.toggle('active');
+                }
+            });
+        });
+        
+        // Handle submenu item click
+        document.querySelectorAll('.submenu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling to parent menu item
+                
+                // Highlight selected submenu item
+                document.querySelectorAll('.submenu-item').forEach(subItem => {
+                    subItem.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                
+                const parentMenu = this.closest('.submenu').id.replace('-submenu', '');
+                const itemName = this.textContent.trim();
+                
+                // For mobile, close the sidebar after selection
+                if (window.innerWidth <= 768 && sidebar) {
+                    sidebar.classList.remove('active');
+                    if (burgerMenu) burgerMenu.classList.remove('active');
+                }
+                
+                // Load content
+                loadContent(parentMenu, itemName);
+            });
+        });
+        
+        // Add logout event listener
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+        
+        // Handle window resize for responsive sidebar
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                if (burgerMenu) burgerMenu.style.display = 'none';
+                if (sidebar) sidebar.style.removeProperty('left');
+            } else {
+                if (burgerMenu) burgerMenu.style.display = 'block';
+                if (sidebar && !sidebar.classList.contains('active')) {
+                    sidebar.style.left = '-250px';
+                }
+            }
         });
     }
-
-    // Toggle submenu on menu item click
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const menuName = this.getAttribute('data-menu');
-            const submenu = document.getElementById(`${menuName}-submenu`);
-            
-            // First, close all submenus to prevent overlapping
-            document.querySelectorAll('.submenu').forEach(menu => {
-                menu.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.menu-item').forEach(menuItem => {
-                menuItem.classList.remove('active');
-            });
-            
-            // Then toggle the clicked menu
-            if (submenu) {
-                submenu.classList.toggle('active');
-                this.classList.toggle('active');
-            }
-        });
-    });
-
-    // Handle submenu item click
-    document.querySelectorAll('.submenu-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.stopPropagation(); // Prevent event bubbling to parent menu item
-            
-            // Highlight selected submenu item
-            document.querySelectorAll('.submenu-item').forEach(subItem => {
-                subItem.classList.remove('selected');
-            });
-            this.classList.add('selected');
-            
-            const parentMenu = this.closest('.submenu').id.replace('-submenu', '');
-            const itemName = this.textContent.trim();
-            console.log(`Selected: ${parentMenu} > ${itemName}`);
-            
-            // For mobile, close the sidebar after selection
-            if (window.innerWidth <= 768 && sidebar) {
-                sidebar.classList.remove('active');
-                if (burgerMenu) burgerMenu.classList.remove('active');
-            }
-            
-            // Load content
-            loadContent(parentMenu, itemName);
-        });
-    });
-
-    // Function to load content
+    
+    // ======== CONTENT LOADING ========
+    // Function to load content based on menu selection
     function loadContent(section, page) {
-        const contentArea = document.querySelector('.content');
+        if (!content) {
+            console.error("Content element not found");
+            return;
+        }
         
-        if (!contentArea) return;
+        // Log the requested content for debugging
+        console.log("Loading content for section:", section, "page:", page);
         
         // Display loading indicator
-        contentArea.innerHTML = '<div class="loading">Loading content...</div>';
+        content.innerHTML = '<div class="loading">Loading content...</div>';
         
-        // Simulate loading delay (remove in production)
+        // Short delay to show loading indicator
         setTimeout(() => {
-            contentArea.innerHTML = `
-                <h2>${section.charAt(0).toUpperCase() + section.slice(1)} > ${page}</h2>
-                <div class="content-box">
-                    <p>Content for ${page} will be displayed here.</p>
-                </div>
-            `;
-        }, 300);
+            try {
+                // Check if it's the Branch page
+                if (section === 'master' && page === 'Branch') {
+                    content.innerHTML = `
+                        <h2>${section.charAt(0).toUpperCase() + section.slice(1)} > ${page}</h2>
+                        <div class="content-box">
+                            <div class="table-container">
+                                <table id="branch-table" class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th data-sort="id2">ID (2)</th>
+                                            <th data-sort="id3">ID (3)</th>
+                                            <th data-sort="id4">ID (4)</th>
+                                            <th data-sort="branchNameEN">Branch Name (EN)</th>
+                                            <th data-sort="branchNameTH">Branch Name (TH)</th>
+                                            <th data-sort="serverIPApp">ServerIP (APP)</th>
+                                            <th data-sort="serverNameApp">Server Name (APP)</th>
+                                            <th data-sort="serverIPDB">ServerIP (DB)</th>
+                                            <th data-sort="serverNameDB">Server Name (DB)</th>
+                                            <th data-sort="screen">Screen</th>
+                                            <th data-sort="kiosk">Kiosk</th>
+                                            <th data-sort="seat">Seat</th>
+                                            <th data-sort="openDate">Open Date</th>
+                                            <th data-sort="status">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- ข้อมูลจะถูกเพิ่มด้วย JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="pagination">
+                                <button id="prev-page" class="page-btn" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <span id="page-info">หน้า 1 จาก 1</span>
+                                <button id="next-page" class="page-btn" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Initialize branch table
+                    setTimeout(() => {
+                        try {
+                            initBranchTable();
+                        } catch (err) {
+                            console.error("Error initializing branch table:", err);
+                            document.querySelector('#branch-table tbody').innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 20px;">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง</td></tr>';
+                        }
+                    }, 100);
+                } else {
+                    // For other pages, show placeholder content
+                    content.innerHTML = `
+                        <h2>${section.charAt(0).toUpperCase() + section.slice(1)} > ${page}</h2>
+                        <div class="content-box">
+                            <p>Content for ${page} will be displayed here.</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error("Error loading content:", err);
+                content.innerHTML = `
+                    <h2>Error</h2>
+                    <div class="content-box">
+                        <p>เกิดข้อผิดพลาดในการโหลดเนื้อหา กรุณาลองใหม่อีกครั้ง</p>
+                    </div>
+                `;
+            }
+        }, 100);
     }
-
-    // Show Master submenu by default
-    const defaultMenu = document.querySelector('[data-menu="master"]');
-    const defaultSubmenu = document.getElementById('master-submenu');
     
-    if (defaultMenu && defaultSubmenu) {
-        defaultMenu.classList.add('active');
-        defaultSubmenu.classList.add('active');
-    }
-    
-    // Initialize content area
-    loadContent('master', 'Branch');
-
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', function(e) {
-        if (sidebar && 
-            window.innerWidth <= 768 && 
-            !e.target.closest('.sidebar') && 
-            !e.target.closest('.burger-menu') && 
-            sidebar.classList.contains('active')) {
-            sidebar.classList.remove('active');
-            if (burgerMenu) burgerMenu.classList.remove('active');
+    // ======== BRANCH DATA MANAGEMENT ========
+    // Function to initialize branch table
+    function initBranchTable() {
+        console.log("Initializing branch table...");
+        
+        // Branch data
+        const branchData = [
+            {id2: "BK", id3: "BKE", id4: "3001", branchNameEN: "Bangkae", branchNameTH: "บางแค", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.32.49", serverNameDB: "bkap-vbrapp02", screen: 10, kiosk: 0, seat: 18806, openDate: "19940616", status: "Active"},
+            {id2: "SC", id3: "SCS", id4: "3003", branchNameEN: "Seacon", branchNameTH: "ซีคอน", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.52", serverNameDB: "scsp-vbrapp02", screen: 12, kiosk: 0, seat: 20047, openDate: "19940907", status: "Active"},
+            {id2: "PK", id3: "PKE", id4: "3008", branchNameEN: "Central Pinklao", branchNameTH: "เซ็นทรัลปิ่นเกล้า", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.32.32", serverNameDB: "pksp-vbrapp02", screen: 12, kiosk: 0, seat: 17925, openDate: "19941001", status: "Active"},
+            {id2: "RS", id3: "RSE", id4: "3004", branchNameEN: "Future Rangsit", branchNameTH: "ฟิวเจอร์รังสิต", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.32.71", serverNameDB: "rssp-vbrapp02", screen: 10, kiosk: 0, seat: 15617, openDate: "19950603", status: "Active"},
+            {id2: "PN", id3: "PIN", id4: "1003", branchNameEN: "Pinklao", branchNameTH: "ปิ่นเกล้า", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.32.80", serverNameDB: "pinp-vbrapp01", screen: 13, kiosk: 0, seat: 25756, openDate: "19951128", status: "Active"},
+            {id2: "SK", id3: "SUK", id4: "1002", branchNameEN: "Sukhumvit", branchNameTH: "สุขุมวิท", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.87", serverNameDB: "sukp-vbrapp02", screen: 8, kiosk: 0, seat: 16487, openDate: "19971207", status: "Active"},
+            {id2: "RY", id3: "RAT", id4: "1001", branchNameEN: "Ratchayothin", branchNameTH: "รัชโยธิน", serverIPApp: "10.24.32.156", serverNameApp: "ratp-vbrapp02", serverIPDB: "10.24.32.103", serverNameDB: "ratp-vbrdb02", screen: 15, kiosk: 0, seat: 48238, openDate: "19981126", status: "Active"},
+            {id2: "KR", id3: "KRT", id4: "3011", branchNameEN: "Korat", branchNameTH: "โคราช", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.31", serverNameDB: "krtvb01", screen: 10, kiosk: 0, seat: 13530, openDate: "20000810", status: "Active"},
+            {id2: "RT", id3: "RST", id4: "1004", branchNameEN: "Rangsit", branchNameTH: "รังสิต", serverIPApp: "10.24.32.50", serverNameApp: "rstp-vbrapp02", serverIPDB: "10.24.32.9", serverNameDB: "rstp-vbrdb02", screen: 16, kiosk: 0, seat: 30399, openDate: "20020308", status: "Active"},
+            {id2: "RA", id3: "RM3", id4: "1005", branchNameEN: "Rama III", branchNameTH: "พระราม 3", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.183", serverNameDB: "rm3p-vbrapp02", screen: 9, kiosk: 0, seat: 14389, openDate: "20020501", status: "Active"},
+            {id2: "BN", id3: "BNA", id4: "1006", branchNameEN: "Bangna", branchNameTH: "บางนา", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.116", serverNameDB: "bnap-vbrapp02", screen: 10, kiosk: 0, seat: 8962, openDate: "20020727", status: "Active"},
+            {id2: "SN", id3: "SRG", id4: "1023", branchNameEN: "Samrong", branchNameTH: "สำโรง", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.219", serverNameDB: "srgp-vbrapp02", screen: 8, kiosk: 0, seat: 10709, openDate: "20020914", status: "Active"},
+            {id2: "BP", id3: "BKP", id4: "1007", branchNameEN: "Bangkapi", branchNameTH: "บางกะปิ", serverIPApp: "10.24.33.64", serverNameApp: "bkpp-vbrapp02", serverIPDB: "10.24.33.251", serverNameDB: "bkpp-vbrdb02", screen: 10, kiosk: 0, seat: 9465, openDate: "20021002", status: "Active"}
+        ];
+        
+        // Get element references
+        const tableBody = document.querySelector('#branch-table tbody');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+        const tableHeaders = document.querySelectorAll('#branch-table th');
+        
+        // Check if table elements exist
+        if (!tableBody) {
+            console.error("Cannot find table body element");
+            return;
         }
-    });
-}
+        
+        // Set initial values
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let filteredData = [...branchData];
+        let sortField = 'id2';
+        let sortDirection = 'asc';
+        
+        // Function to render table data
+        function renderTable() {
+            console.log("Rendering table with", filteredData.length, "branches");
+            
+            // Calculate total pages
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            
+            // Reset table and add new data
+            tableBody.innerHTML = '';
+            
+            // Calculate rows to display
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
+            
+            // Sort data
+            const sortedData = [...filteredData].sort((a, b) => {
+                const valueA = a[sortField];
+                const valueB = b[sortField];
+                
+                // Sort numerically if values are numbers
+                if (!isNaN(valueA) && !isNaN(valueB)) {
+                    if (sortDirection === 'asc') {
+                        return Number(valueA) - Number(valueB);
+                    } else {
+                        return Number(valueB) - Number(valueA);
+                    }
+                } else {
+                    // Sort alphabetically for text
+                    if (sortDirection === 'asc') {
+                        return valueA > valueB ? 1 : -1;
+                    } else {
+                        return valueA < valueB ? 1 : -1;
+                    }
+                }
+            });
+            
+            // Display data
+            for (let i = startIndex; i < endIndex; i++) {
+                const row = sortedData[i];
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${row.id2}</td>
+                    <td>${row.id3}</td>
+                    <td>${row.id4}</td>
+                    <td>${row.branchNameEN}</td>
+                    <td>${row.branchNameTH}</td>
+                    <td>${row.serverIPApp || ''}</td>
+                    <td>${row.serverNameApp || ''}</td>
+                    <td>${row.serverIPDB || ''}</td>
+                    <td>${row.serverNameDB || ''}</td>
+                    <td>${row.screen}</td>
+                    <td>${row.kiosk}</td>
+                    <td>${row.seat}</td>
+                    <td>${formatDate(row.openDate)}</td>
+                    <td class="status-${row.status.toLowerCase()}">${row.status}</td>
+                `;
+                
+                tableBody.appendChild(tr);
+            }
+            
+            // Update page info
+            if (pageInfo) {
+                pageInfo.textContent = `หน้า ${currentPage} จาก ${totalPages || 1}`;
+            }
+            
+            // Update button states
+            if (prevPageBtn) prevPageBtn.disabled = currentPage === 1;
+            if (nextPageBtn) nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            
+            // Update sort icons
+            if (tableHeaders) {
+                tableHeaders.forEach(th => {
+                    const field = th.getAttribute('data-sort');
+                    th.classList.remove('sort-asc', 'sort-desc');
+                    
+                    if (field === sortField) {
+                        th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                    }
+                });
+            }
+            
+            // Show message if no data found
+            if (filteredData.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = '<td colspan="14" style="text-align: center; padding: 20px;">ไม่พบข้อมูล</td>';
+                tableBody.appendChild(noDataRow);
+            }
+        }
+        
+        // Function to format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            
+            try {
+                const year = dateStr.substring(0, 4);
+                const month = dateStr.substring(4, 6);
+                const day = dateStr.substring(6, 8);
+                
+                return `${day}/${month}/${year}`;
+            } catch (err) {
+                console.error("Error formatting date:", err);
+                return dateStr;
+            }
+        }
+        
+        // Pagination buttons
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+        }
+        
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+        }
+        
+        // Column sorting
+        if (tableHeaders) {
+            tableHeaders.forEach(th => {
+                th.addEventListener('click', () => {
+                    const field = th.getAttribute('data-sort');
+                    
+                    if (!field) return;
+                    
+                    if (field === sortField) {
+                        // Toggle sort direction if same column clicked
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // Change sort column and reset direction
+                        sortField = field;
+                        sortDirection = 'asc';
+                    }
+                    
+                    renderTable();
+                });
+            });
+        }
+        
+        // Initialize table display
+        renderTable();
+    }
+});
