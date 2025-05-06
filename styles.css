@@ -1,7 +1,5 @@
-.submenu.active {
-    display: block;
-    z-index: 1; /* Ensure active submenus are above other elements */
-}* {
+/* ================ Base Styles ================ */
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -15,22 +13,23 @@ body {
     flex-direction: column;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* Header Styles */
+/* ================ Header Styles ================ */
 .header {
     background-color: #000;
     color: white;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    padding: 10px 15px;
+    padding: 10px 8px;
     position: sticky;
     top: 0;
     z-index: 1000;
     margin: 0;
     height: 50px;
+    width: 100%;
 }
 
 .logo {
@@ -38,9 +37,22 @@ body {
     align-items: center;
     font-size: 18px;
     font-weight: bold;
+    gap: 2px;
+}
+
+.logo-image {
+    height: 32px;
+    margin-right: 3px;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
 }
 
 .nav-buttons {
+    margin-left: auto;
     display: flex;
     align-items: center;
 }
@@ -57,13 +69,14 @@ body {
 
 .logout-btn {
     color: #3a9fe5;
+    cursor: pointer;
 }
 
-/* Burger Menu Icon */
+/* ================ Burger Menu Icon ================ */
 .burger-menu {
     display: none;
     cursor: pointer;
-    margin-right: 15px;
+    margin-right: 5px;
 }
 
 .burger-menu div {
@@ -74,71 +87,65 @@ body {
     transition: all 0.3s;
 }
 
-/* Main Container */
+/* Burger menu active state */
+.burger-menu.active div:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.burger-menu.active div:nth-child(2) {
+    opacity: 0;
+}
+
+.burger-menu.active div:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* ================ Main Container ================ */
 .container {
     display: flex;
     flex: 1;
     margin: 0;
     padding: 0;
+    position: relative;
+    transition: all 0.3s ease;
 }
 
-/* Prevent submenu stacking */
+/* ================ Sidebar ================ */
 .sidebar {
-    width: 170px; /* Width as requested */
+    width: 220px;
     background: #1c1c1c;
     color: white;
     overflow-y: auto;
-    overflow-x: hidden; /* Prevent horizontal overflow */
+    overflow-x: hidden;
     flex-shrink: 0;
-    background-image: linear-gradient(to bottom, #1c1c1c 60%, #00588a, #007bbd, #00a2e8); /* Smoother gradient */
+    background-image: linear-gradient(to bottom, #1c1c1c 60%, #00588a, #007bbd, #00a2e8);
     margin: 0;
     padding: 0;
     height: calc(100vh - 50px);
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.3); /* Subtle inner shadow */
-    position: relative; /* Necessary for proper z-index handling */
-}
-
-/* Remove the custom gradient we added before */
-.sidebar::after {
-    display: none;
-}
-
-/* Remove current-page styling since we don't use it anymore */
-.current-page {
-    display: none;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.3);
+    position: relative;
+    transition: all 0.3s ease;
+    z-index: 900;
 }
 
 /* Menu and Submenu Styles */
 .menu-item {
     cursor: pointer;
-    padding: 0 15px; /* Adjust padding to achieve 25px height */
-    height: 25px; /* Set exact height to 25px as requested */
-    line-height: 25px; /* Center text vertically */
+    padding: 10px 15px;
     position: relative;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Lighter subtle border */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0;
-    font-size: 13px; /* Slightly smaller font */
-    overflow: hidden; /* Prevent text overflow */
-    white-space: nowrap; /* Keep text on one line */
-    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    font-size: 13px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .menu-item:hover {
-    background-color: rgba(0, 162, 232, 0.15); /* Subtle hover effect */
-}
-
-.menu-item.active {
-    background-color: #016c9b; /* Darker blue that matches the theme */
-    color: white;
-    font-weight: 600; /* Slightly bolder when active */
-    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1); /* Bottom highlight */
-}
-
-.menu-item.active .menu-arrow {
-    transform: rotate(180deg);
+    background-color: rgba(0, 162, 232, 0.15);
 }
 
 .menu-arrow {
@@ -151,74 +158,67 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Use original submenu display instead of max-height animation */
+/* Submenu */
 .submenu {
     display: none;
-    background-color: #222; /* Slightly lighter than parent */
-    border-left: 2px solid #016c9b; /* Left accent border */
-    overflow: visible; /* Ensure submenu content doesn't overflow */
+    background-color: #222;
+    border-left: 2px solid #016c9b;
+    overflow: visible;
 }
 
-/* Fixed nesting issue */
+.submenu.active {
+    display: block;
+    z-index: 1;
+}
+
 .submenu .submenu {
-    display: none; /* Ensure nested submenus don't show */
+    display: none;
 }
 
 .submenu-item {
-    padding: 0 10px 0 28px; /* Reduced left padding */
-    height: 25px; /* Set exact height to 25px */
-    line-height: 25px; /* Center text vertically */
+    padding: 8px 10px 8px 28px;
     position: relative;
     margin: 0;
-    font-size: 12px; /* Smaller font for submenu */
-    color: rgba(255, 255, 255, 0.85); /* Slightly dimmer text */
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
     transition: background-color 0.2s;
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflowing text */
-    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
 }
 
 .submenu-item:before {
-    content: ""; /* Empty content for dot */
+    content: "";
     position: absolute;
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    width: 4px; /* Smaller dot */
-    height: 4px; /* Smaller dot */
-    background-color: rgba(0, 162, 232, 0.6); /* Semi-transparent blue */
+    width: 4px;
+    height: 4px;
+    background-color: rgba(0, 162, 232, 0.6);
     border-radius: 50%;
     transition: all 0.2s;
 }
 
 .submenu-item:hover {
-    background-color: rgba(0, 162, 232, 0.1); /* Very subtle hover background */
+    background-color: rgba(0, 162, 232, 0.1);
 }
 
 .submenu-item:hover:before {
-    background-color: #00a2e8; /* Brighter dot on hover */
-    width: 5px; /* Slightly larger on hover */
-    height: 5px; /* Slightly larger on hover */
+    background-color: #00a2e8;
+    width: 5px;
+    height: 5px;
 }
 
-.submenu-item.selected {
-    background-color: rgba(0, 162, 232, 0.2); /* Subtle highlight for selected item */
-    color: white; /* Brighter text */
-}
-
-.submenu-item.selected:before {
-    background-color: #00a2e8; /* Bright blue dot */
-    width: 6px; /* Larger when selected */
-    height: 6px; /* Larger when selected */
-    box-shadow: 0 0 3px rgba(0, 162, 232, 0.5); /* Subtle glow */
-}
-
-/* Content Area */
+/* ================ Content Area ================ */
 .content {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background-color: #fff; /* Original white background */
+    background-color: #fff;
+    width: 100%;
+    min-height: calc(100vh - 50px);
 }
 
 .content h2 {
@@ -247,21 +247,66 @@ body {
     color: #666;
 }
 
-/* Responsive Design */
+
+/* ================ RESPONSIVE DESIGN ================ */
+/* Large Screens */
+@media (min-width: 1200px) {
+    .sidebar {
+        width: 250px;
+    }
+    
+    .menu-item {
+        font-size: 14px;
+    }
+    
+    .submenu-item {
+        font-size: 13px;
+    }
+    
+    .content {
+        padding: 30px;
+    }
+    
+    /* ซ่อนเมนูแฮมเบอร์เกอร์บนจอขนาดใหญ่ */
+    .burger-menu {
+        display: none !important;
+    }
+}
+
+/* Medium Screens */
+@media (min-width: 769px) and (max-width: 1199px) {
+    .sidebar {
+        width: 220px;
+    }
+    
+    .content {
+        padding: 15px;
+    }
+    
+    .content h2 {
+        font-size: 16px;
+    }
+    
+    /* ซ่อนเมนูแฮมเบอร์เกอร์บนจอขนาดกลาง */
+    .burger-menu {
+        display: none !important;
+    }
+}
+
+/* Small Tablets and Mobile */
 @media (max-width: 768px) {
     .burger-menu {
-        display: block;
+        display: block; /* แสดงเมนูบนอุปกรณ์ขนาดเล็ก */
     }
     
     .sidebar {
         position: fixed;
-        left: -170px; /* Updated to match our new width */
+        left: -250px;
         top: 50px;
         bottom: 0;
+        width: 250px;
         transition: left 0.3s ease;
         z-index: 900;
-        margin: 0;
-        padding: 0;
     }
     
     .sidebar.active {
@@ -270,35 +315,206 @@ body {
     
     .container {
         flex-direction: column;
-        margin: 0;
-        padding: 0;
-    }
-    
-    .burger-menu.active div:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 5px);
-    }
-    
-    .burger-menu.active div:nth-child(2) {
-        opacity: 0;
-    }
-    
-    .burger-menu.active div:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
-    }
-    
-    .header {
-        padding: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .nav-button {
-        font-size: 12px;
-        padding: 4px 8px;
-        margin-left: 8px;
     }
     
     .content {
         padding: 15px;
     }
+    
+    .search-container {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .table-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .table-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* Mobile Phones */
+@media (max-width: 480px) {
+    .header {
+        padding: 10px;
+    }
+    
+    .logo {
+        font-size: 16px;
+    }
+    
+    .content {
+        padding: 10px;
+    }
+    
+    .content-box {
+        padding: 15px;
+    }
+    
+    .nav-button {
+        font-size: 12px;
+    }
+    
+    .data-table {
+        font-size: 12px;
+    }
+    
+    .data-table th, .data-table td {
+        padding: 6px 8px;
+    }
+    
+    .search-input, .search-btn, .action-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Very Small Phones */
+@media (max-width: 360px) {
+    .header {
+        height: auto;
+        min-height: 45px;
+        padding: 5px;
+    }
+    
+    .logo {
+        font-size: 14px;
+    }
+    
+    .menu-item {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    
+    .submenu-item {
+        padding: 6px 10px 6px 25px;
+        font-size: 11px;
+    }
+    
+    .action-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+}
+
+/* Touch Device Optimization */
+@media (hover: none) {
+    .submenu-item:hover {
+        background-color: transparent;
+    }
+    
+    .submenu-item:active {
+        background-color: rgba(0, 162, 232, 0.2);
+    }
+    
+    .menu-item:hover {
+        background-color: transparent;
+    }
+    
+    .menu-item:active {
+        background-color: rgba(0, 162, 232, 0.2);
+    }
+}
+
+/* Animation for loading */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.loading {
+    animation: pulse 1.5s infinite;
+}
+
+/* ================ WELCOME PAGE EFFECTS ================ */
+/* 1. ปรับแต่งพื้นหลังของหน้าแรก */
+.welcome-content {
+    text-align: center;
+    padding: 40px 20px;
+    background-image: linear-gradient(120deg, #f6f8f9 0%, #e9f2f7 100%);
+    animation: fadeInPage 1s ease;
+}
+
+@keyframes fadeInPage {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 2. ปรับแต่งหัวข้อให้มีเอฟเฟคการเคลื่อนไหว */
+.welcome-content h2 {
+    font-size: 32px;
+    color: #016c9b;
+    border-bottom: none;
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+    animation: fadeInTitle 1.2s ease;
+}
+
+.welcome-content h2:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    bottom: -10px;
+    left: 50%;
+    background: linear-gradient(90deg, #016c9b, #00a2e8);
+    transform: translateX(-50%);
+    animation: lineExpand 1.5s forwards ease-out 0.5s;
+}
+
+@keyframes fadeInTitle {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineExpand {
+    from { width: 0; }
+    to { width: 80%; }
+}
+
+/* 3. ปรับแต่ง content-box ให้มีเอฟเฟค */
+.welcome-content .content-box {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(20px);
+    animation: floatUp 1s forwards ease-out 0.7s;
+    border-top: 4px solid #00a2e8;
+}
+
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ปรับการหมุนของลูกศรเมื่อเปิด submenu */
+.menu-item .menu-arrow {
+    transition: transform 0.3s ease;
+}
+
+.menu-item.active .menu-arrow {
+    transform: rotate(180deg);
+}
+
+/* อนิเมชั่นการเปิด/ปิด submenu */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.submenu.active {
+    max-height: 1000px; /* ค่าที่มากพอสำหรับ submenu ทั้งหมด */
+    transition: max-height 0.5s ease-in;
 }
