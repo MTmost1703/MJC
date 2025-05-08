@@ -6,6 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutBtn = document.getElementById('logout-btn');
     const usernameDisplay = document.getElementById('username-display');
     
+    // สร้าง overlay element สำหรับปิด sidebar เมื่อคลิกที่พื้นที่ว่าง
+    const sidebarOverlay = document.createElement('div');
+    sidebarOverlay.className = 'sidebar-overlay';
+    document.body.appendChild(sidebarOverlay);
+    
+    // ตัวแปรสำหรับเก็บ timeout ของการปิด sidebar อัตโนมัติ
+    let sidebarTimeout;
+    
     // Check login status - ตรวจสอบสถานะล็อกอินก่อนแสดงแดชบอร์ด
     checkLoginStatus();
     
@@ -30,24 +38,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update username display
         if (usernameDisplay && storedUsername) {
             usernameDisplay.textContent = storedUsername.toUpperCase();
-            usernameDisplay.title = storedUsername;
+            usernameDisplay.title = storedUsername; // เพิ่ม title attribute เพื่อแสดงชื่อเต็มเมื่อ hover
         }
         
-        // Show default content for admin
-        if (isAdmin) {
-            // Show Master submenu by default when logged in
-            const defaultMenu = document.querySelector('[data-menu="master"]');
-            const defaultSubmenu = document.getElementById('master-submenu');
-            
-            if (defaultMenu && defaultSubmenu) {
-                defaultMenu.classList.add('active');
-                defaultSubmenu.classList.add('active');
-            }
-            
-            // Load default content
-            loadContent('master', 'Branch');
-        } else {
-            // If not admin, show limited access message
+        // ไม่เปิด submenu ใดๆ โดยอัตโนมัติ เพื่อให้ผู้ใช้ต้องคลิกที่เมนูหลักก่อน
+        
+        // หากไม่ใช่ admin แสดงข้อความแจ้งเตือน
+        if (!isAdmin) {
             if (content) {
                 content.innerHTML = `
                     <h2>Limited Access</h2>
@@ -62,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to handle logout
     function handleLogout(e) {
-        if (e) e.preventDefault();
+        if (e && e.cancelable) e.preventDefault();
         
         console.log("Logging out...");
         
@@ -71,73 +68,248 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('username');
         sessionStorage.removeItem('isAdmin');
         
+        // Clear menu state
+        localStorage.removeItem('activeMenus');
+        
         // Redirect to login page
         window.location.href = 'login.html';
+    }
+    
+    // Function to close sidebar completely
+    function closeSidebar() {
+        if (sidebar) {
+            sidebar.classList.remove('active');
+            sidebar.style.left = '-250px';
+            sidebarOverlay.classList.remove('active');
+        }
+        
+        if (burgerMenu) {
+            burgerMenu.classList.remove('active');
+        }
+        
+        // ยกเลิก timeout การปิดอัตโนมัติ
+        clearTimeout(sidebarTimeout);
+    }
+    
+    // Function to toggle sidebar
+    function toggleSidebar(e) {
+        if (e && e.cancelable) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        if (burgerMenu) {
+            burgerMenu.classList.toggle('active');
+        }
+        
+        if (sidebar) {
+            const isActive = sidebar.classList.contains('active');
+            
+            if (isActive) {
+                // ถ้า sidebar กำลังเปิดอยู่ ให้ปิด
+                closeSidebar();
+            } else {
+                // ถ้า sidebar กำลังปิดอยู่ ให้เปิด
+                sidebar.classList.add('active');
+                sidebar.style.left = '0';
+                sidebarOverlay.classList.add('active');
+                
+                // ตั้งเวลาปิดอัตโนมัติหลังจากไม่ได้ใช้งาน
+                setupSidebarAutoClose();
+            }
+        }
+        
+        console.log("Toggled sidebar, active:", sidebar ? sidebar.classList.contains('active') : 'sidebar not found');
+    }
+    
+    // Function to setup auto-close for sidebar
+    function setupSidebarAutoClose() {
+        if (window.innerWidth <= 768) {
+            // ตั้งเวลาปิด sidebar หลังจากไม่ได้ใช้งาน 60 วินาที (บนมือถือเท่านั้น)
+            clearTimeout(sidebarTimeout);
+            
+            sidebarTimeout = setTimeout(() => {
+                if (sidebar && sidebar.classList.contains('active')) {
+                    closeSidebar();
+                }
+            }, 60000); // 60 วินาที
+        }
+    }
+    
+    // Function to save menu state
+    function saveMenuState() {
+        // เก็บข้อมูลเมนูที่เปิดอยู่
+        const activeMenus = [];
+        
+        document.querySelectorAll('.menu-item.active').forEach(menuItem => {
+            activeMenus.push(menuItem.getAttribute('data-menu'));
+        });
+        
+        // เก็บลงใน localStorage
+        if (activeMenus.length > 0) {
+            localStorage.setItem('activeMenus', JSON.stringify(activeMenus));
+        }
+    }
+    
+    // ฟังก์ชันนี้ถูกปรับเพื่อไม่โหลดสถานะเมนูเดิมเมื่อเริ่มต้น - ต้องการให้เริ่มต้นทุกครั้งโดยไม่เปิด submenu
+    function loadMenuState() {
+        // ฟังก์ชั่นนี้ถูกปรับให้ไม่ทำงานเพื่อไม่ให้โหลดสถานะเมนูเดิม
+        return;
     }
     
     // ======== DASHBOARD INITIALIZATION ========
     // Function to initialize dashboard functionality
     function initializeDashboard() {
-        // Toggle sidebar with burger menu
+        // Toggle sidebar with burger menu - แก้ไขส่วนนี้
         if (burgerMenu && sidebar) {
-            burgerMenu.addEventListener('click', function() {
-                this.classList.toggle('active');
-                sidebar.classList.toggle('active');
+            // ลบ event listener เดิมที่อาจมีปัญหา
+            burgerMenu.removeEventListener('click', toggleSidebar);
+            
+            // เพิ่ม event listener ใหม่เพื่อความมั่นใจ
+            ['click', 'touchstart'].forEach(eventType => {
+                burgerMenu.addEventListener(eventType, function(e) {
+                    // ป้องกันการทำงานซ้ำซ้อนและตรวจสอบว่า event สามารถยกเลิกได้หรือไม่
+                    if (eventType === 'touchstart' && e.cancelable) {
+                        e.preventDefault();
+                    }
+                    
+                    toggleSidebar(e);
+                }, { passive: false });
             });
         }
         
+        // เพิ่ม event listener เพื่อปิด sidebar เมื่อคลิกที่ overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function(e) {
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
+                
+                if (sidebar && sidebar.classList.contains('active')) {
+                    toggleSidebar();
+                }
+            }, { passive: false });
+        }
+        
+        // ปิด sidebar เมื่อคลิกที่พื้นที่ว่างนอก sidebar
+        document.addEventListener('click', function(e) {
+            // ตรวจสอบว่าคลิกที่พื้นที่นอก sidebar และ sidebar กำลังแสดงอยู่
+            if (sidebar && burgerMenu && 
+                !sidebar.contains(e.target) && 
+                !burgerMenu.contains(e.target) && 
+                sidebar.classList.contains('active') &&
+                window.innerWidth <= 768) {
+                
+                toggleSidebar();
+            }
+        });
+        
+        // เพิ่ม event listener สำหรับการรีเซ็ตเวลาปิดอัตโนมัติเมื่อมีการใช้งาน
+        document.addEventListener('mousemove', setupSidebarAutoClose);
+        document.addEventListener('touchstart', setupSidebarAutoClose);
+        document.addEventListener('click', setupSidebarAutoClose);
+        
         // Toggle submenu on menu item click
         document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const menuName = this.getAttribute('data-menu');
-                const submenu = document.getElementById(`${menuName}-submenu`);
-                
-                // ตรวจสอบว่า submenu นี้กำลังแสดงอยู่หรือไม่
-                const isActive = submenu && submenu.classList.contains('active');
-                
-                // ปิดทุก submenu และลบคลาส active จากทุกเมนู (ยกเว้นเมนูปัจจุบัน)
-                document.querySelectorAll('.submenu').forEach(menu => {
-                    if (menu.id !== `${menuName}-submenu`) {
-                        menu.classList.remove('active');
+            // เพิ่ม event listener ทั้ง click และ touchstart
+            ['click', 'touchstart'].forEach(eventType => {
+                item.addEventListener(eventType, function(e) {
+                    if (eventType === 'touchstart' && e.cancelable) {
+                        e.preventDefault(); // ป้องกันการทำงานซ้ำซ้อนเฉพาะสำหรับ touchstart ที่ยกเลิกได้
                     }
-                });
-                
-                document.querySelectorAll('.menu-item').forEach(menuItem => {
-                    if (menuItem !== this) {
-                        menuItem.classList.remove('active');
+                    
+                    const menuName = this.getAttribute('data-menu');
+                    const submenu = document.getElementById(`${menuName}-submenu`);
+                    
+                    if (!submenu) {
+                        console.error(`Submenu element not found: ${menuName}-submenu`);
+                        return;
                     }
-                });
-                
-                // สลับ active state ของ submenu ปัจจุบัน (เปิด/ปิด)
-                if (submenu) {
-                    submenu.classList.toggle('active');
-                    this.classList.toggle('active');
-                }
+                    
+                    // ตรวจสอบว่า submenu นี้กำลังแสดงอยู่หรือไม่
+                    const isActive = submenu.classList.contains('active');
+                    
+                    // ปิดทุก submenu และลบคลาส active จากทุกเมนู (ยกเว้นเมนูปัจจุบัน)
+                    document.querySelectorAll('.submenu').forEach(menu => {
+                        if (menu.id !== `${menuName}-submenu`) {
+                            menu.classList.remove('active');
+                            menu.style.maxHeight = '0';
+                        }
+                    });
+                    
+                    document.querySelectorAll('.menu-item').forEach(menuItem => {
+                        if (menuItem !== this) {
+                            menuItem.classList.remove('active');
+                        }
+                    });
+                    
+                    // สลับ active state ของ submenu ปัจจุบัน (เปิด/ปิด)
+                    if (submenu) {
+                        // รีเซ็ตสไตล์เพื่อรับรองว่า CSS ทำงานถูกต้อง
+                        submenu.style.width = '100%';
+                        submenu.style.position = 'relative';
+                        submenu.style.left = '0';
+                        submenu.style.right = '0';
+                        
+                        submenu.classList.toggle('active');
+                        this.classList.toggle('active');
+                        
+                        if (submenu.classList.contains('active')) {
+                            submenu.style.maxHeight = '2000px';
+                        } else {
+                            submenu.style.maxHeight = '0';
+                        }
+                        
+                        // บันทึกสถานะเมนู
+                        saveMenuState();
+                        
+                        // เพื่อตรวจสอบว่า submenu แสดงผลอย่างถูกต้อง
+                        console.log(`Toggle menu: ${menuName}, active: ${submenu.classList.contains('active')}`);
+                    }
+                    
+                    // ป้องกันการทำงานซ้ำซ้อนหลังจากเสร็จสิ้นการทำงาน
+                    if (eventType === 'touchstart' && e.cancelable) {
+                        e.stopPropagation(); 
+                    }
+                }, { passive: false });
             });
         });
         
         // Handle submenu item click
         document.querySelectorAll('.submenu-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.stopPropagation(); // Prevent event bubbling to parent menu item
-                
-                // Highlight selected submenu item
-                document.querySelectorAll('.submenu-item').forEach(subItem => {
-                    subItem.classList.remove('selected');
-                });
-                this.classList.add('selected');
-                
-                const parentMenu = this.closest('.submenu').id.replace('-submenu', '');
-                const itemName = this.textContent.trim();
-                
-                // For mobile, close the sidebar after selection
-                if (window.innerWidth <= 768 && sidebar) {
-                    sidebar.classList.remove('active');
-                    if (burgerMenu) burgerMenu.classList.remove('active');
-                }
-                
-                // Load content
-                loadContent(parentMenu, itemName);
+            // เพิ่ม event listener ทั้ง click และ touchstart
+            ['click', 'touchstart'].forEach(eventType => {
+                item.addEventListener(eventType, function(e) {
+                    if (eventType === 'touchstart' && e.cancelable) {
+                        e.preventDefault(); // ป้องกันการทำงานซ้ำซ้อนเฉพาะสำหรับ touchstart ที่ยกเลิกได้
+                    }
+                    
+                    if (e.cancelable) {
+                        e.stopPropagation(); // Prevent event bubbling to parent menu item
+                    }
+                    
+                    // Highlight selected submenu item
+                    document.querySelectorAll('.submenu-item').forEach(subItem => {
+                        subItem.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    
+                    const parentMenu = this.closest('.submenu').id.replace('-submenu', '');
+                    const itemName = this.textContent.trim();
+                    
+                    // For mobile, close the sidebar after selection
+                    if (window.innerWidth <= 768 && sidebar) {
+                        toggleSidebar(); // ใช้ฟังก์ชัน toggleSidebar แทนการเรียกใช้โค้ดซ้ำ
+                    }
+                    
+                    // Load content
+                    loadContent(parentMenu, itemName);
+                    
+                    // ป้องกันการทำงานซ้ำซ้อนหลังจากเสร็จสิ้นการทำงาน
+                    if (eventType === 'touchstart' && e.cancelable) {
+                        return false;
+                    }
+                }, { passive: false });
             });
         });
         
@@ -147,17 +319,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Handle window resize for responsive sidebar
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                if (burgerMenu) burgerMenu.style.display = 'none';
-                if (sidebar) sidebar.style.removeProperty('left');
-            } else {
-                if (burgerMenu) burgerMenu.style.display = 'block';
-                if (sidebar && !sidebar.classList.contains('active')) {
-                    sidebar.style.left = '-250px';
-                }
-            }
+        const debounce = (func, delay) => {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        };
+        
+        window.addEventListener('resize', debounce(function() {
+            checkScreenSize(); // เรียกใช้ฟังก์ชัน checkScreenSize เมื่อมีการปรับขนาดหน้าจอ
+        }, 250)); // debounce 250ms
+        
+        // เรียกใช้ฟังก์ชัน checkScreenSize เมื่อโหลดหน้า
+        checkScreenSize();
+        
+        // ปิดใช้งานการโหลดสถานะเมนูที่เคยบันทึกไว้เพื่อให้เริ่มต้นใหม่ทุกครั้ง
+        // loadMenuState();
+        
+        // เรียกใช้ฟังก์ชันเพื่อปิด submenu ทั้งหมดเมื่อเริ่มต้น
+        closeAllSubmenus();
+    }
+    
+    // เพิ่มฟังก์ชันใหม่เพื่อปิด submenu ทั้งหมดเมื่อเริ่มต้น
+    function closeAllSubmenus() {
+        document.querySelectorAll('.submenu').forEach(submenu => {
+            submenu.classList.remove('active');
+            submenu.style.maxHeight = '0';
         });
+        
+        document.querySelectorAll('.menu-item').forEach(menuItem => {
+            menuItem.classList.remove('active');
+        });
+    }
+    
+    // ฟังก์ชันเพื่อตรวจสอบขนาดหน้าจอและปรับแต่ง UI ตามขนาด
+    function checkScreenSize() {
+        const windowWidth = window.innerWidth;
+        
+        if (windowWidth > 768) {
+            if (burgerMenu) burgerMenu.style.display = 'none';
+            if (sidebar) {
+                sidebar.style.removeProperty('left');
+                sidebar.classList.remove('active');
+            }
+            if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+        } else {
+            if (burgerMenu) burgerMenu.style.display = 'block';
+            if (sidebar && !sidebar.classList.contains('active')) {
+                sidebar.style.left = '-250px';
+            }
+        }
     }
     
     // ======== CONTENT LOADING ========
@@ -235,6 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h2>${section.charAt(0).toUpperCase() + section.slice(1)} > ${page}</h2>
                         <div class="content-box">
                             <p>Content for ${page} will be displayed here.</p>
+                            <p>This is a placeholder for future functionality.</p>
                         </div>
                     `;
                 }
@@ -244,10 +459,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <h2>Error</h2>
                     <div class="content-box">
                         <p>เกิดข้อผิดพลาดในการโหลดเนื้อหา กรุณาลองใหม่อีกครั้ง</p>
+                        <p>รายละเอียดข้อผิดพลาด: ${err.message}</p>
                     </div>
                 `;
             }
-        }, 100);
+        }, 300); // เพิ่มเวลาดีเลย์เพื่อให้เห็นการโหลดชัดเจนขึ้น
     }
     
     // ======== BRANCH DATA MANAGEMENT ========
@@ -287,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set initial values
         let currentPage = 1;
-        const rowsPerPage = 10;
+        const rowsPerPage = 15;
         let filteredData = [...branchData];
         let sortField = 'id2';
         let sortDirection = 'asc';
@@ -321,9 +537,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     // Sort alphabetically for text
                     if (sortDirection === 'asc') {
-                        return valueA > valueB ? 1 : -1;
+                        return String(valueA).localeCompare(String(valueB));
                     } else {
-                        return valueA < valueB ? 1 : -1;
+                        return String(valueB).localeCompare(String(valueA));
                     }
                 }
             });
@@ -443,4 +659,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize table display
         renderTable();
     }
+
+    // Fix the submenu display issue - added function to ensure submenus display correctly
+    function fixSubmenuDisplay() {
+        // Get all submenu elements
+        const allSubmenus = document.querySelectorAll('.submenu');
+        
+        // Apply correct styles to ensure proper display
+        allSubmenus.forEach(submenu => {
+            // Ensure correct width and positioning
+            submenu.style.width = '100%';
+            submenu.style.position = 'relative';
+            submenu.style.left = '0';
+            submenu.style.right = '0';
+            
+            // Make sure all submenus are closed on start
+            submenu.classList.remove('active');
+            submenu.style.maxHeight = '0';
+        });
+    }
+    
+    // Call the fix function after a short delay to ensure DOM is fully loaded
+    setTimeout(fixSubmenuDisplay, 300);
 });
