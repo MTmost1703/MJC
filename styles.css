@@ -21,14 +21,16 @@ body {
     background-color: #000;
     color: white;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between; /* เปลี่ยนจาก flex-start เป็น space-between */
     align-items: center;
-    padding: 10px 8px;
+    padding: 10px 15px; /* เพิ่ม padding ให้มากขึ้น */
     position: sticky;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     margin: 0;
-    height: 50px;
+    min-height: 50px; /* เปลี่ยนจาก height เป็น min-height */
     width: 100%;
 }
 
@@ -37,7 +39,8 @@ body {
     align-items: center;
     font-size: 18px;
     font-weight: bold;
-    gap: 2px;
+    gap: 8px; /* เพิ่ม gap ให้มากขึ้น */
+    flex-shrink: 0; /* ป้องกันการหดตัว */
 }
 
 .logo-image {
@@ -52,9 +55,10 @@ body {
 }
 
 .nav-buttons {
-    margin-left: auto;
     display: flex;
     align-items: center;
+    margin-left: auto;
+    overflow: hidden; /* ป้องกันการล้น */
 }
 
 .nav-button, .logout-btn {
@@ -67,6 +71,17 @@ body {
     vertical-align: middle;
 }
 
+/* แก้ไขส่วนของชื่อผู้ใช้ - แสดงเต็มทุกขนาดหน้าจอ (ยกเว้นมือถือ) */
+#username-display {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 14px;
+    overflow: visible; /* ให้แสดงเต็ม */
+    white-space: nowrap;
+    display: block;
+}
+
 .logout-btn {
     color: #3a9fe5;
     cursor: pointer;
@@ -76,7 +91,12 @@ body {
 .burger-menu {
     display: none;
     cursor: pointer;
-    margin-right: 5px;
+    margin-right: 10px;
+    width: 30px;
+    height: 25px;
+    position: relative;
+    z-index: 1010; /* ค่า z-index สูงกว่า sidebar */
+    padding: 5px;
 }
 
 .burger-menu div {
@@ -85,6 +105,7 @@ body {
     background-color: white;
     margin: 5px 0;
     transition: all 0.3s;
+    border-radius: 1px;
 }
 
 /* Burger menu active state */
@@ -98,6 +119,24 @@ body {
 
 .burger-menu.active div:nth-child(3) {
     transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* ลบรูปแบบ X button สำหรับปิด sidebar */
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    display: block;
 }
 
 /* ================ Main Container ================ */
@@ -118,20 +157,22 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 0;
-    background-image: linear-gradient(to bottom, #1c1c1c 60%, #00588a, #007bbd, #00a2e8);
+    background-image: linear-gradient(to bottom, #1c1c1c 25% , #61132a,#432467,#3B2869,#371949);
     margin: 0;
     padding: 0;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 50px); /* ความสูงของ sidebar คือความสูงของหน้าจอลบด้วยความสูงของ header */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.3);
-    position: relative;
-    transition: all 0.3s ease;
+    position: fixed; /* เปลี่ยนจาก relative เป็น fixed เพื่อล็อคตำแหน่ง */
+    top: 50px; /* ระยะห่างจากด้านบนของหน้าจอเท่ากับความสูงของ header */
+    left: 0; /* ชิดขอบซ้ายของหน้าจอ */
+    transition: left 0.3s ease;
     z-index: 900;
 }
 
 /* Menu and Submenu Styles */
 .menu-item {
     cursor: pointer;
-    padding: 10px 15px;
+    padding: 12px 15px; /* เพิ่มขนาดพื้นที่การแตะ */
     position: relative;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
@@ -142,6 +183,8 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    -webkit-tap-highlight-color: rgba(0, 162, 232, 0.15); /* เพิ่มการตอบสนองเมื่อแตะ */
+    width: 100%; /* เพิ่มเพื่อให้แน่ใจว่ามีความกว้างเต็ม sidebar */
 }
 
 .menu-item:hover {
@@ -156,19 +199,31 @@ body {
     border-top: 5px solid white;
     margin-left: 5px;
     transition: transform 0.3s ease;
+    position: relative; /* เพิ่มเพื่อการวางตำแหน่งที่ถูกต้อง */
+    display: inline-block; /* เพิ่มเพื่อให้แน่ใจว่าแสดงถูกต้อง */
 }
 
-/* Submenu */
+/* Submenu - แก้ไขเพื่อแก้ปัญหาพื้นที่ว่างสีขาว */
 .submenu {
-    display: none;
+    display: block; /* เปลี่ยนจาก none เป็น block */
     background-color: #222;
     border-left: 2px solid #016c9b;
-    overflow: visible;
+    width: 100%; /* ให้มีความกว้าง 100% */
+    min-width: 220px; /* กำหนดความกว้างขั้นต่ำเท่ากับความกว้างของ sidebar */
+    left: 0;
+    right: 0;
+    position: relative; /* ตำแหน่งที่ถูกต้อง */
+    box-sizing: border-box; /* คำนวณความกว้างรวม padding และ border */
+    overflow: hidden;
+    max-height: 0; /* เริ่มต้นที่ 0 */
+    transition: max-height 0.3s ease-out;
 }
 
 .submenu.active {
     display: block;
     z-index: 1;
+    max-height: 2000px; /* ค่าที่มากพอสำหรับ submenu ทั้งหมด */
+    transition: max-height 0.5s ease-in;
 }
 
 .submenu .submenu {
@@ -176,7 +231,7 @@ body {
 }
 
 .submenu-item {
-    padding: 8px 10px 8px 28px;
+    padding: 12px 10px 12px 28px; /* เพิ่มขนาดพื้นที่การแตะ */
     position: relative;
     margin: 0;
     font-size: 12px;
@@ -186,6 +241,8 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0, 162, 232, 0.1); /* เพิ่มการตอบสนองเมื่อแตะ */
+    width: 100%; /* ให้มีความกว้าง 100% */
 }
 
 .submenu-item:before {
@@ -211,14 +268,27 @@ body {
     height: 5px;
 }
 
+/* เพิ่ม style สำหรับ selected state */
+.submenu-item.selected {
+    background-color: rgba(0, 162, 232, 0.2);
+    color: white;
+}
+
+.submenu-item.selected:before {
+    background-color: #00a2e8;
+    width: 5px;
+    height: 5px;
+}
+
 /* ================ Content Area ================ */
 .content {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
     background-color: #fff;
-    width: 100%;
+    width: calc(100% - 220px); /* ลบความกว้างของ sidebar ออกจากความกว้างทั้งหมด */
     min-height: calc(100vh - 50px);
+    margin-left: 220px; /* เพิ่ม margin ทางซ้ายเท่ากับความกว้างของ sidebar */
 }
 
 .content h2 {
@@ -247,12 +317,98 @@ body {
     color: #666;
 }
 
+/* ================ Table Styles ================ */
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+.data-table th, .data-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.data-table th:hover {
+    background-color: #e8e8e8;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Status indicators */
+.status-active {
+    color: green;
+    font-weight: bold;
+}
+
+.status-inactive {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #ff9900;
+    font-weight: bold;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.page-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
 
 /* ================ RESPONSIVE DESIGN ================ */
 /* Large Screens */
 @media (min-width: 1200px) {
     .sidebar {
         width: 250px;
+    }
+    
+    .content {
+        width: calc(100% - 250px);
+        margin-left: 250px;
     }
     
     .menu-item {
@@ -280,6 +436,11 @@ body {
     }
     
     .content {
+        width: calc(100% - 220px);
+        margin-left: 220px;
+    }
+    
+    .content {
         padding: 15px;
     }
     
@@ -296,7 +457,7 @@ body {
 /* Small Tablets and Mobile */
 @media (max-width: 768px) {
     .burger-menu {
-        display: block; /* แสดงเมนูบนอุปกรณ์ขนาดเล็ก */
+        display: block !important; /* แสดงเมนูบนอุปกรณ์ขนาดเล็ก */
     }
     
     .sidebar {
@@ -304,21 +465,24 @@ body {
         left: -250px;
         top: 50px;
         bottom: 0;
-        width: 250px;
+        width: 250px; /* ปรับความกว้างให้มากขึ้นเล็กน้อยเพื่อการแตะที่ดีขึ้น */
         transition: left 0.3s ease;
-        z-index: 900;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     }
     
     .sidebar.active {
         left: 0;
     }
     
-    .container {
-        flex-direction: column;
+    .content {
+        width: 100%; /* บนมือถือ content กินพื้นที่เต็ม */
+        margin-left: 0; /* ไม่มี margin ทางซ้าย */
+        padding: 15px;
     }
     
-    .content {
-        padding: 15px;
+    .container {
+        flex-direction: column;
     }
     
     .search-container {
@@ -335,6 +499,12 @@ body {
     .table-actions {
         width: 100%;
         justify-content: space-between;
+    }
+    
+    /* ปรับปรุงการแตะบนอุปกรณ์สัมผัส */
+    .menu-item, .submenu-item {
+        padding-top: 14px;
+        padding-bottom: 14px;
     }
 }
 
@@ -372,6 +542,24 @@ body {
         padding: 6px 10px;
         font-size: 12px;
     }
+    
+    /* ซ่อนชื่อผู้ใช้ในหน้าจอขนาดเล็ก */
+    #username-display {
+        display: none;
+    }
+    
+    .nav-buttons span {
+        display: none;
+    }
+    
+    .logout-btn {
+        margin-left: 0;
+    }
+    
+    /* เพิ่มความชัดเจนในการแตะที่เมนู */
+    .menu-item:active, .submenu-item:active {
+        background-color: rgba(0, 162, 232, 0.25);
+    }
 }
 
 /* Very Small Phones */
@@ -400,16 +588,21 @@ body {
         padding: 5px 8px;
         font-size: 11px;
     }
+    
+    .logout-btn {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
 }
 
-/* Touch Device Optimization */
+/* Touch Device Optimization - แก้ไขส่วนนี้ */
 @media (hover: none) {
     .submenu-item:hover {
         background-color: transparent;
     }
     
     .submenu-item:active {
-        background-color: rgba(0, 162, 232, 0.2);
+        background-color: rgba(0, 162, 232, 0.25);
     }
     
     .menu-item:hover {
@@ -417,7 +610,17 @@ body {
     }
     
     .menu-item:active {
-        background-color: rgba(0, 162, 232, 0.2);
+        background-color: rgba(0, 162, 232, 0.25);
+    }
+    
+    /* เพิ่มเอฟเฟกต์การแตะที่ชัดเจน */
+    .menu-item:active, .submenu-item:active {
+        opacity: 0.8;
+    }
+    
+    /* ปรับปรุงการแตะบนอุปกรณ์สัมผัส */
+    .submenu-item {
+        padding: 14px 10px 14px 28px; /* เพิ่มความสูงเพื่อให้แตะได้ง่ายขึ้น */
     }
 }
 
@@ -432,89 +635,3 @@ body {
     animation: pulse 1.5s infinite;
 }
 
-/* ================ WELCOME PAGE EFFECTS ================ */
-/* 1. ปรับแต่งพื้นหลังของหน้าแรก */
-.welcome-content {
-    text-align: center;
-    padding: 40px 20px;
-    background-image: linear-gradient(120deg, #f6f8f9 0%, #e9f2f7 100%);
-    animation: fadeInPage 1s ease;
-}
-
-@keyframes fadeInPage {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 2. ปรับแต่งหัวข้อให้มีเอฟเฟคการเคลื่อนไหว */
-.welcome-content h2 {
-    font-size: 32px;
-    color: #016c9b;
-    border-bottom: none;
-    margin-bottom: 30px;
-    position: relative;
-    display: inline-block;
-    animation: fadeInTitle 1.2s ease;
-}
-
-.welcome-content h2:after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 3px;
-    bottom: -10px;
-    left: 50%;
-    background: linear-gradient(90deg, #016c9b, #00a2e8);
-    transform: translateX(-50%);
-    animation: lineExpand 1.5s forwards ease-out 0.5s;
-}
-
-@keyframes fadeInTitle {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes lineExpand {
-    from { width: 0; }
-    to { width: 80%; }
-}
-
-/* 3. ปรับแต่ง content-box ให้มีเอฟเฟค */
-.welcome-content .content-box {
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transform: translateY(20px);
-    animation: floatUp 1s forwards ease-out 0.7s;
-    border-top: 4px solid #00a2e8;
-}
-
-@keyframes floatUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-
-/* ปรับการหมุนของลูกศรเมื่อเปิด submenu */
-.menu-item .menu-arrow {
-    transition: transform 0.3s ease;
-}
-
-.menu-item.active .menu-arrow {
-    transform: rotate(180deg);
-}
-
-/* อนิเมชั่นการเปิด/ปิด submenu */
-.submenu {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-.submenu.active {
-    max-height: 1000px; /* ค่าที่มากพอสำหรับ submenu ทั้งหมด */
-    transition: max-height 0.5s ease-in;
-}
