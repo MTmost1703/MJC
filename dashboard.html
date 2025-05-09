@@ -11,14 +11,18 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">
-            <div class="burger-menu" id="burger-menu">
-                <div></div>
-                <div></div>
-                <div></div>
+        <!-- Burger menu placed on the left -->
+        <div class="header-left">
+            <div class="burger-menu" id="burger-menu" aria-label="Toggle menu" role="button" tabindex="0">
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
             </div>
-            <img src="images/Major_Logo.png" alt="MJC Logo" class="logo-image">
-            <span class="logo-text">MJC Portal</span>
+            <!-- Logo adjusted to be closer to burger menu -->
+            <div class="logo">
+                <img src="images/Major_Logo.png" alt="MJC Logo" class="logo-image">
+                <span class="logo-text">MJC Portal</span>
+            </div>
         </div>
         <div class="nav-buttons" id="nav-buttons">
             <a href="#" class="nav-button" id="username-display" title="Username">ADMIN</a>
@@ -32,222 +36,222 @@
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <!-- Master Menu -->
-            <div class="menu-item" data-menu="master">
+            <div class="menu-item" data-menu="master" role="button" tabindex="0" aria-expanded="false">
                 <span>Master</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="master-submenu">
-                <div class="submenu-item">Branch</div>
-                <div class="submenu-item">Branch Inter</div>
-                <div class="submenu-item">Movie</div>
-                <div class="submenu-item">Branch Manager</div>
-                <div class="submenu-item">Branch FilmHire</div>
-                <div class="submenu-item">Distributor FilmHire</div>
-                <div class="submenu-item">Tier Branch</div>
-                <div class="submenu-item">Tier Item</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch Inter</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Movie</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch Manager</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch FilmHire</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Distributor FilmHire</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Tier Branch</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Tier Item</div>
             </div>
            
             <!-- Account Menu -->
-            <div class="menu-item" data-menu="account">
+            <div class="menu-item" data-menu="account" role="button" tabindex="0" aria-expanded="false">
                 <span>Account</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="account-submenu">
-                <div class="submenu-item">AR Revenue Sale</div>
-                <div class="submenu-item">AR Revenue Sale (On Cloud)</div>
-                <div class="submenu-item">Bowling AR Revenue Sale</div>
-                <div class="submenu-item">Stock Receipt</div>
-                <div class="submenu-item">Stock Receipt (On Cloud)</div>
-                <div class="submenu-item">Stock (On Cloud)</div>
-                <div class="submenu-item">Checker Report</div>
-                <div class="submenu-item">Landlord Report ACC</div>
-                <div class="submenu-item">Vendor Payment</div>
-                <div class="submenu-item">Film Hire Setting</div>
-                <div class="submenu-item">Film Hire Report</div>
-                <div class="submenu-item">Complimentary Upgrade Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">AR Revenue Sale</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">AR Revenue Sale (On Cloud)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling AR Revenue Sale</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Stock Receipt</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Stock Receipt (On Cloud)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Stock (On Cloud)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Checker Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Landlord Report ACC</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Vendor Payment</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Film Hire Setting</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Film Hire Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Complimentary Upgrade Report</div>
             </div>
            
             <!-- Operation Menu -->
-            <div class="menu-item" data-menu="operation">
+            <div class="menu-item" data-menu="operation" role="button" tabindex="0" aria-expanded="false">
                 <span>Operation</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="operation-submenu">
-                <div class="submenu-item">RealTime (On Cloud)</div>
-                <div class="submenu-item">RealTime (Inter)</div>
-                <div class="submenu-item">Price Card</div>
-                <div class="submenu-item">Voucher Redeem</div>
-                <div class="submenu-item">Landlord Branch</div>
-                <div class="submenu-item">Landlord Report</div>
-                <div class="submenu-item">Checker Branch</div>
-                <div class="submenu-item">Random Seat</div>
-                <div class="submenu-item">Concession Center</div>
-                <div class="submenu-item">Concession Report</div>
-                <div class="submenu-item">Payment Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">RealTime (On Cloud)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">RealTime (Inter)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Price Card</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Voucher Redeem</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Landlord Branch</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Landlord Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Checker Branch</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Random Seat</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Concession Center</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Concession Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Payment Report</div>
             </div>
            
             <!-- Embassy Menu -->
-            <div class="menu-item" data-menu="embassy">
+            <div class="menu-item" data-menu="embassy" role="button" tabindex="0" aria-expanded="false">
                 <span>Embassy</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="embassy-submenu">
-                <div class="submenu-item">Revenue</div>
-                <div class="submenu-item">Real Time</div>
-                <div class="submenu-item">Summary Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Revenue</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Real Time</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Summary Report</div>
             </div>
            
             <!-- IT Menu -->
-            <div class="menu-item" data-menu="it">
+            <div class="menu-item" data-menu="it" role="button" tabindex="0" aria-expanded="false">
                 <span>IT (App)</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="it-submenu">
-                <div class="submenu-item">Branch Close</div>
-                <div class="submenu-item">Branch Execute Custom</div>
-                <div class="submenu-item">Branch Custom View</div>
-                <div class="submenu-item">CPC Manage Account</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch Close</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch Execute Custom</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Branch Custom View</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">CPC Manage Account</div>
             </div>
            
             <!-- BOT Menu -->
-            <div class="menu-item" data-menu="bot">
+            <div class="menu-item" data-menu="bot" role="button" tabindex="0" aria-expanded="false">
                 <span>BOT</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="bot-submenu">
-                <div class="submenu-item">EMM</div>
-                <div class="submenu-item">EMT</div>
-                <div class="submenu-item">TMM</div>
-                <div class="submenu-item">TMT</div>
-                <div class="submenu-item">BOT</div>
-                <div class="submenu-item">Card Base</div>
-                <div class="submenu-item">Card Movement</div>
-                <div class="submenu-item">Redeem Summary</div>
-                <div class="submenu-item">E-Money</div>
-                <div class="submenu-item">E-Money by Value</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">EMM</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">EMT</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">TMM</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">TMT</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">BOT</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Card Base</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Card Movement</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Redeem Summary</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">E-Money</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">E-Money by Value</div>
             </div>
            
             <!-- MCash Menu -->
-            <div class="menu-item" data-menu="mcash">
+            <div class="menu-item" data-menu="mcash" role="button" tabindex="0" aria-expanded="false">
                 <span>MCash</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mcash-submenu">
-                <div class="submenu-item">Abnormal Report</div>
-                <div class="submenu-item">Encrypted-PIN</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Abnormal Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Encrypted-PIN</div>
             </div>
            
             <!-- MPass MGen Menu -->
-            <div class="menu-item" data-menu="mpass">
+            <div class="menu-item" data-menu="mpass" role="button" tabindex="0" aria-expanded="false">
                 <span>MPass MGen</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mpass-submenu">
-                <div class="submenu-item">Repair Quick Pay</div>
-                <div class="submenu-item">Log Card Exp</div>
-                <div class="submenu-item">Log Card Replace</div>
-                <div class="submenu-item">Log Recurring</div>
-                <div class="submenu-item">Log Recurring (Re-Run)</div>
-                <div class="submenu-item">Member Log</div>
-                <div class="submenu-item">Loyalty Offline</div>
-                <div class="submenu-item">Promo Recurring</div>
-                <div class="submenu-item">Clear Recog</div>
-                <div class="submenu-item">Members Transaction Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Repair Quick Pay</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Log Card Exp</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Log Card Replace</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Log Recurring</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Log Recurring (Re-Run)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Member Log</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Loyalty Offline</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Promo Recurring</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Clear Recog</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Members Transaction Report</div>
             </div>
            
             <!-- MGen Summary (Thai) Menu -->
-            <div class="menu-item" data-menu="mgen-thai">
+            <div class="menu-item" data-menu="mgen-thai" role="button" tabindex="0" aria-expanded="false">
                 <span>MGen Summary (Thai)</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mgen-thai-submenu">
-                <div class="submenu-item">Expiry Point by Club</div>
-                <div class="submenu-item">Point by Branch</div>
-                <div class="submenu-item">Point by Club</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Expiry Point by Club</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Point by Branch</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Point by Club</div>
             </div>
            
             <!-- MGen Summary (Inter) Menu -->
-            <div class="menu-item" data-menu="mgen-inter">
+            <div class="menu-item" data-menu="mgen-inter" role="button" tabindex="0" aria-expanded="false">
                 <span>MGen Summary (Inter)</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mgen-inter-submenu">
-                <div class="submenu-item">Expiry Point by Club (Inter)</div>
-                <div class="submenu-item">Point by Branch (Inter)</div>
-                <div class="submenu-item">Point by Club (Inter)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Expiry Point by Club (Inter)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Point by Branch (Inter)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Point by Club (Inter)</div>
             </div>
            
             <!-- MGen Card Fee (Thai) Menu -->
-            <div class="menu-item" data-menu="mgen-card-fee-thai">
+            <div class="menu-item" data-menu="mgen-card-fee-thai" role="button" tabindex="0" aria-expanded="false">
                 <span>MGen Card Fee (Thai)</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mgen-card-fee-thai-submenu">
-                <div class="submenu-item">MKT Type</div>
-                <div class="submenu-item">Club</div>
-                <div class="submenu-item">Member Type</div>
-                <div class="submenu-item">Item</div>
-                <div class="submenu-item">Transaction</div>
-                <div class="submenu-item">Summary</div>
-                <div class="submenu-item">Transaction Summary</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">MKT Type</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Club</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Member Type</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Item</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Transaction</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Summary</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Transaction Summary</div>
             </div>
            
             <!-- MGen Card Fee (Inter) Menu -->
-            <div class="menu-item" data-menu="mgen-card-fee-inter">
+            <div class="menu-item" data-menu="mgen-card-fee-inter" role="button" tabindex="0" aria-expanded="false">
                 <span>MGen Card Fee (Inter)</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="mgen-card-fee-inter-submenu">
-                <div class="submenu-item">MKT Type</div>
-                <div class="submenu-item">Club</div>
-                <div class="submenu-item">Member Type</div>
-                <div class="submenu-item">Item</div>
-                <div class="submenu-item">Transaction</div>
-                <div class="submenu-item">Summary</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">MKT Type</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Club</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Member Type</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Item</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Transaction</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Summary</div>
             </div>
            
             <!-- Bowling Menu -->
-            <div class="menu-item" data-menu="bowling">
+            <div class="menu-item" data-menu="bowling" role="button" tabindex="0" aria-expanded="false">
                 <span>Bowling</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="bowling-submenu">
-                <div class="submenu-item">Revenue</div>
-                <div class="submenu-item">Sum On Date</div>
-                <div class="submenu-item">Booking Report</div>
-                <div class="submenu-item">VTEC Report</div>
-                <div class="submenu-item">VTEC Report (Branch)</div>
-                <div class="submenu-item">VTEC Inter Report (Branch)</div>
-                <div class="submenu-item">Bowling Landlord Report</div>
-                <div class="submenu-item">Bowling NonSale Report</div>
-                <div class="submenu-item">Bowling Package Report</div>
-                <div class="submenu-item">Bowling Usage Report</div>
-                <div class="submenu-item">Bowling Sale Report</div>
-                <div class="submenu-item">Bowling Balance Report</div>
-                <div class="submenu-item">Bowling Summary Sale Report</div>
-                <div class="submenu-item">Bowling Voucher Payment Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Revenue</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Sum On Date</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Booking Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">VTEC Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">VTEC Report (Branch)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">VTEC Inter Report (Branch)</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Landlord Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling NonSale Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Package Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Usage Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Sale Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Balance Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Summary Sale Report</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Bowling Voucher Payment Report</div>
             </div>
            
             <!-- PSC Menu -->
-            <div class="menu-item" data-menu="psc">
+            <div class="menu-item" data-menu="psc" role="button" tabindex="0" aria-expanded="false">
                 <span>PSC</span>
                 <span class="menu-arrow"></span>
             </div>
             <div class="submenu" id="psc-submenu">
-                <div class="submenu-item">Blacklist View</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Blacklist View</div>
             </div>
            
             <!-- Admin Permission Menu -->
-            <div class="menu-item" data-menu="admin permission">
+            <div class="menu-item" data-menu="admin-permission" role="button" tabindex="0" aria-expanded="false">
                 <span>Admin Permission</span>
                 <span class="menu-arrow"></span>
             </div>
-            <div class="submenu" id="admin permission-submenu">
-                <div class="submenu-item">Permission User</div>
-                <div class="submenu-item">Permission Group User</div>
-                <div class="submenu-item">Permission Group Menu</div>
-                <div class="submenu-item">Permission Menu</div>
-                <div class="submenu-item">Permission Menu Detail</div>
+            <div class="submenu" id="admin-permission-submenu">
+                <div class="submenu-item" tabindex="0" role="menuitem">Permission User</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Permission Group User</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Permission Group Menu</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Permission Menu</div>
+                <div class="submenu-item" tabindex="0" role="menuitem">Permission Menu Detail</div>
             </div>
         </div>
        
@@ -255,6 +259,12 @@
         <div class="content" id="content">
         </div>
     </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Touch Feedback Element -->
+    <div id="touch-feedback" class="touch-feedback"></div>
 
     <script src="script.js"></script>
 </body>
