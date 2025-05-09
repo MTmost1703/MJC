@@ -6,6 +6,10 @@
     font-family: Arial, sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: #fff;
     min-height: 100vh;
@@ -14,6 +18,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent; /* ป้องกันการแสดง highlight เมื่อแตะบนมือถือ */
 }
 
 /* ================ Header Styles ================ */
@@ -21,17 +26,26 @@ body {
     background-color: #000;
     color: white;
     display: flex;
-    justify-content: space-between; /* เปลี่ยนจาก flex-start เป็น space-between */
+    justify-content: space-between;
     align-items: center;
-    padding: 10px 15px; /* เพิ่ม padding ให้มากขึ้น */
+    padding: 10px 15px;
     position: sticky;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
     margin: 0;
-    min-height: 50px; /* เปลี่ยนจาก height เป็น min-height */
+    min-height: 50px;
     width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+/* New container for left side elements */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Reduced gap to bring logo closer to burger menu */
 }
 
 .logo {
@@ -39,91 +53,147 @@ body {
     align-items: center;
     font-size: 18px;
     font-weight: bold;
-    gap: 8px; /* เพิ่ม gap ให้มากขึ้น */
-    flex-shrink: 0; /* ป้องกันการหดตัว */
+    gap: 5px; /* Reduced from 8px to 5px */
+    flex-shrink: 0;
 }
 
 .logo-image {
     height: 32px;
-    margin-right: 3px;
+    margin-right: 0;
+    margin-left: 0;
+    transition: transform 0.3s ease;
 }
 
 .logo-text {
     font-size: 18px;
     font-weight: bold;
     color: white;
+    transition: all 0.3s ease;
 }
 
 .nav-buttons {
     display: flex;
     align-items: center;
-    margin-left: auto;
-    overflow: hidden; /* ป้องกันการล้น */
+    gap: 10px;
+    transition: all 0.3s ease;
 }
 
 .nav-button, .logout-btn {
     color: white;
     text-decoration: none;
-    margin-left: 5px;
     font-size: 14px;
-    padding: 0;
-    display: inline-block;
-    vertical-align: middle;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-/* แก้ไขส่วนของชื่อผู้ใช้ - แสดงเต็มทุกขนาดหน้าจอ (ยกเว้นมือถือ) */
+.nav-button:hover, .logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-button:active, .logout-btn:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(1px);
+}
+
+/* ปรับแต่งชื่อผู้ใช้ */
 #username-display {
     color: white;
     text-decoration: none;
-    margin: 0 10px;
     font-size: 14px;
-    overflow: visible; /* ให้แสดงเต็ม */
+    overflow: visible;
     white-space: nowrap;
     display: block;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+#username-display:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .logout-btn {
     color: #3a9fe5;
     cursor: pointer;
+    font-weight: bold;
 }
 
 /* ================ Burger Menu Icon ================ */
 .burger-menu {
-    display: none;
     cursor: pointer;
-    margin-right: 10px;
-    width: 30px;
-    height: 25px;
-    position: relative;
-    z-index: 1010; /* ค่า z-index สูงกว่า sidebar */
-    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 0; /* No margin to keep it close to logo */
+    padding: 0;
 }
 
-.burger-menu div {
-    width: 25px;
-    height: 3px;
+.burger-menu:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.burger-menu:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+}
+
+.burger-line {
+    display: block;
+    width: 18px; /* ปรับขนาดให้เหมาะสม */
+    height: 2px;
     background-color: white;
-    margin: 5px 0;
-    transition: all 0.3s;
-    border-radius: 1px;
+    margin: 2px 0; /* ลดระยะห่างระหว่างเส้น */
+    transition: transform 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
+                opacity 0.3s ease,
+                background-color 0.3s ease;
+    border-radius: 2px;
 }
 
-/* Burger menu active state */
-.burger-menu.active div:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
+/* สถานะ active สำหรับ burger menu เพื่อแสดง X */
+.burger-menu.active .burger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg); /* ปรับค่าให้เหมาะสมกับขนาดใหม่ */
+    background-color: #00a2e8;
 }
 
-.burger-menu.active div:nth-child(2) {
+.burger-menu.active .burger-line:nth-child(2) {
     opacity: 0;
+    transform: translateX(-10px);
 }
 
-.burger-menu.active div:nth-child(3) {
-    transform: rotate(-45deg) translate(6px, -6px);
+.burger-menu.active .burger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg); /* ปรับค่าให้เหมาะสมกับขนาดใหม่ */
+    background-color: #00a2e8;
 }
 
-/* ลบรูปแบบ X button สำหรับปิด sidebar */
+/* ปรับเพื่อให้ burger menu แสดงในทุกขนาดหน้าจอ */
+@media (min-width: 1200px) {
+    .burger-menu {
+        display: flex !important; /* แสดง burger menu ในทุกขนาดหน้าจอ */
+    }
+}
 
-/* Sidebar overlay for mobile */
+/* Medium Screens */
+@media (min-width: 769px) and (max-width: 1199px) {
+    .burger-menu {
+        display: flex !important; /* แสดง burger menu ในทุกขนาดหน้าจอ */
+    }
+}
+
+/* ปรับขนาดในโหมดมือถือ */
+@media (max-width: 768px) {
+    .burger-menu {
+        display: flex !important; /* แสดง burger menu */
+        /* ไม่จำเป็นต้องเปลี่ยนตำแหน่งเพราะอยู่ที่ตำแหน่งเดียวกันในทุกขนาดหน้าจอ */
+    }
+}
+
+/* Sidebar overlay */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -133,10 +203,15 @@ body {
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    cursor: pointer;
 }
 
 .sidebar-overlay.active {
     display: block;
+    opacity: 1;
 }
 
 /* ================ Main Container ================ */
@@ -157,22 +232,42 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 0;
-    background-image: linear-gradient(to bottom, #1c1c1c 25% , #61132a,#432467,#3B2869,#371949);
+    background-image: linear-gradient(to bottom, #1c1c1c 25%, #61132a, #432467, #3B2869, #371949);
     margin: 0;
     padding: 0;
-    height: calc(100vh - 50px); /* ความสูงของ sidebar คือความสูงของหน้าจอลบด้วยความสูงของ header */
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.3);
-    position: fixed; /* เปลี่ยนจาก relative เป็น fixed เพื่อล็อคตำแหน่ง */
-    top: 50px; /* ระยะห่างจากด้านบนของหน้าจอเท่ากับความสูงของ header */
-    left: 0; /* ชิดขอบซ้ายของหน้าจอ */
-    transition: left 0.3s ease;
+    height: calc(100vh - 50px);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 50px;
+    left: 0;
+    transition: left 0.3s cubic-bezier(0.17, 0.84, 0.44, 1), box-shadow 0.3s ease;
     z-index: 900;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Styling scrollbar for WebKit browsers */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Menu and Submenu Styles */
 .menu-item {
     cursor: pointer;
-    padding: 12px 15px; /* เพิ่มขนาดพื้นที่การแตะ */
+    padding: 12px 15px;
     position: relative;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
@@ -183,12 +278,23 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    -webkit-tap-highlight-color: rgba(0, 162, 232, 0.15); /* เพิ่มการตอบสนองเมื่อแตะ */
-    width: 100%; /* เพิ่มเพื่อให้แน่ใจว่ามีความกว้างเต็ม sidebar */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
 }
 
 .menu-item:hover {
     background-color: rgba(0, 162, 232, 0.15);
+}
+
+.menu-item:active {
+    background-color: rgba(0, 162, 232, 0.25);
+}
+
+.menu-item.active {
+    background-color: rgba(0, 162, 232, 0.2);
+    border-left: 3px solid #00a2e8;
+    padding-left: 12px;
 }
 
 .menu-arrow {
@@ -199,50 +305,50 @@ body {
     border-top: 5px solid white;
     margin-left: 5px;
     transition: transform 0.3s ease;
-    position: relative; /* เพิ่มเพื่อการวางตำแหน่งที่ถูกต้อง */
-    display: inline-block; /* เพิ่มเพื่อให้แน่ใจว่าแสดงถูกต้อง */
+    display: inline-block;
 }
 
-/* Submenu - แก้ไขเพื่อแก้ปัญหาพื้นที่ว่างสีขาว */
+.menu-item.active .menu-arrow {
+    transform: rotate(180deg);
+}
+
+/* Submenu */
 .submenu {
-    display: block; /* เปลี่ยนจาก none เป็น block */
-    background-color: #222;
+    display: block;
+    background-color: rgba(0, 0, 0, 0.2);
     border-left: 2px solid #016c9b;
-    width: 100%; /* ให้มีความกว้าง 100% */
-    min-width: 220px; /* กำหนดความกว้างขั้นต่ำเท่ากับความกว้างของ sidebar */
+    width: 100%;
+    min-width: 220px;
     left: 0;
     right: 0;
-    position: relative; /* ตำแหน่งที่ถูกต้อง */
-    box-sizing: border-box; /* คำนวณความกว้างรวม padding และ border */
+    position: relative;
+    box-sizing: border-box;
     overflow: hidden;
-    max-height: 0; /* เริ่มต้นที่ 0 */
-    transition: max-height 0.3s ease-out;
+    max-height: 0;
+    transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
 }
 
 .submenu.active {
     display: block;
     z-index: 1;
-    max-height: 2000px; /* ค่าที่มากพอสำหรับ submenu ทั้งหมด */
-    transition: max-height 0.5s ease-in;
-}
-
-.submenu .submenu {
-    display: none;
+    max-height: 2000px;
+    transition: max-height 0.8s ease-in-out;
+    overflow-y: visible;
 }
 
 .submenu-item {
-    padding: 12px 10px 12px 28px; /* เพิ่มขนาดพื้นที่การแตะ */
+    padding: 12px 10px 12px 28px;
     position: relative;
     margin: 0;
     font-size: 12px;
     color: rgba(255, 255, 255, 0.85);
-    transition: background-color 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
-    -webkit-tap-highlight-color: rgba(0, 162, 232, 0.1); /* เพิ่มการตอบสนองเมื่อแตะ */
-    width: 100%; /* ให้มีความกว้าง 100% */
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
 }
 
 .submenu-item:before {
@@ -250,34 +356,42 @@ body {
     position: absolute;
     left: 14px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%) scale(1);
     width: 4px;
     height: 4px;
     background-color: rgba(0, 162, 232, 0.6);
     border-radius: 50%;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .submenu-item:hover {
     background-color: rgba(0, 162, 232, 0.1);
+    color: white;
 }
 
 .submenu-item:hover:before {
     background-color: #00a2e8;
-    width: 5px;
-    height: 5px;
+    transform: translateY(-50%) scale(1.2);
+    box-shadow: 0 0 4px rgba(0, 162, 232, 0.5);
+}
+
+.submenu-item:active {
+    background-color: rgba(0, 162, 232, 0.2);
+    transform: translateX(2px);
 }
 
 /* เพิ่ม style สำหรับ selected state */
 .submenu-item.selected {
     background-color: rgba(0, 162, 232, 0.2);
     color: white;
+    font-weight: bold;
 }
 
 .submenu-item.selected:before {
     background-color: #00a2e8;
     width: 5px;
     height: 5px;
+    box-shadow: 0 0 4px rgba(0, 162, 232, 0.5);
 }
 
 /* ================ Content Area ================ */
@@ -286,9 +400,10 @@ body {
     padding: 20px;
     overflow-y: auto;
     background-color: #fff;
-    width: calc(100% - 220px); /* ลบความกว้างของ sidebar ออกจากความกว้างทั้งหมด */
+    width: calc(100% - 220px);
     min-height: calc(100vh - 50px);
-    margin-left: 220px; /* เพิ่ม margin ทางซ้ายเท่ากับความกว้างของ sidebar */
+    margin-left: 220px;
+    transition: width 0.3s ease, margin-left 0.3s ease;
 }
 
 .content h2 {
@@ -298,29 +413,68 @@ body {
     padding-bottom: 10px;
     font-weight: normal;
     font-size: 18px;
+    animation: fadeIn 0.5s ease;
 }
 
 .content-box {
     background-color: white;
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    transition: all 0.3s ease;
+    animation: slideUp 0.4s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.content-box:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 .loading {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100px;
-    font-style: italic;
+    height: 120px;
     color: #666;
+    font-size: 16px;
+    position: relative;
+    padding-left: 25px;
+}
+
+.loading:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    border: 2px solid #ddd;
+    border-top-color: #00a2e8;
+    border-radius: 50%;
+    animation: loading-spinner 0.8s linear infinite;
+}
+
+@keyframes loading-spinner {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ================ Table Styles ================ */
 .table-container {
     overflow-x: auto;
     margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.table-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .data-table {
@@ -328,12 +482,14 @@ body {
     border-collapse: collapse;
     border-spacing: 0;
     font-size: 14px;
+    background-color: white;
 }
 
 .data-table th, .data-table td {
-    padding: 10px;
+    padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e8e8e8;
+    transition: all 0.2s ease;
 }
 
 .data-table th {
@@ -343,34 +499,128 @@ body {
     position: sticky;
     top: 0;
     z-index: 2;
+    color: #444;
+    user-select: none;
 }
 
 .data-table th:hover {
     background-color: #e8e8e8;
+    color: #000;
+}
+
+.data-table th.sort-asc::after {
+    content: ' ▲';
+    font-size: 0.8em;
+    color: #00a2e8;
+    margin-left: 5px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.data-table th.sort-desc::after {
+    content: ' ▼';
+    font-size: 0.8em;
+    color: #00a2e8;
+    margin-left: 5px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.data-table tbody tr {
+    transition: all 0.2s ease;
 }
 
 .data-table tbody tr:hover {
-    background-color: #f9f9f9;
+    background-color: #f5f9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.data-table tbody tr:active {
+    background-color: #e8f4ff;
 }
 
 .data-table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
+.data-table tbody tr:nth-child(even):hover {
+    background-color: #f5f9ff;
+}
+
 /* Status indicators */
 .status-active {
-    color: green;
+    color: #2ecc71;
     font-weight: bold;
+    position: relative;
+    display: inline-block;
+    padding-left: 15px;
+}
+
+.status-active:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #2ecc71;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
 }
 
 .status-inactive {
-    color: #ff0000;
+    color: #e74c3c;
     font-weight: bold;
+    position: relative;
+    display: inline-block;
+    padding-left: 15px;
+}
+
+.status-inactive:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #e74c3c;
+    border-radius: 50%;
 }
 
 .status-pending {
-    color: #ff9900;
+    color: #f39c12;
     font-weight: bold;
+    position: relative;
+    display: inline-block;
+    padding-left: 15px;
+}
+
+.status-pending:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #f39c12;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(46, 204, 113, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
 }
 
 /* Pagination */
@@ -378,16 +628,26 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 15px;
+    margin-top: 20px;
+    gap: 10px;
+    padding: 5px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .page-btn {
-    background-color: #f0f0f0;
+    background-color: #f8f8f8;
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 5px 10px;
-    margin: 0 5px;
+    padding: 6px 12px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 36px;
+    outline: none;
 }
 
 .page-btn:disabled {
@@ -397,6 +657,91 @@ body {
 
 .page-btn:hover:not(:disabled) {
     background-color: #e0e0e0;
+    border-color: #ccc;
+}
+
+.page-btn:active:not(:disabled) {
+    background-color: #d0d0d0;
+    transform: translateY(1px);
+}
+
+#page-info {
+    font-size: 14px;
+    color: #555;
+    padding: 0 10px;
+}
+
+/* Touch Feedback */
+.touch-feedback {
+    position: absolute;
+    pointer-events: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 162, 232, 0.3);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    z-index: 9999;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.touch-feedback.active {
+    animation: touch-ripple 0.6s ease-out forwards;
+}
+
+@keyframes touch-ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Sidebar Notification */
+.sidebar-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    z-index: 1100;
+    font-size: 14px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+    border-left: 3px solid #00a2e8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideLeft {
+    from { 
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* ================ RESPONSIVE DESIGN ================ */
@@ -423,9 +768,14 @@ body {
         padding: 30px;
     }
     
-    /* ซ่อนเมนูแฮมเบอร์เกอร์บนจอขนาดใหญ่ */
+    /* Always show burger menu */
     .burger-menu {
-        display: none !important;
+        display: flex !important;
+    }
+    
+    /* Adjust header-left spacing */
+    .header-left {
+        gap: 5px;
     }
 }
 
@@ -441,23 +791,28 @@ body {
     }
     
     .content {
-        padding: 15px;
+        padding: 20px;
     }
     
     .content h2 {
         font-size: 16px;
     }
     
-    /* ซ่อนเมนูแฮมเบอร์เกอร์บนจอขนาดกลาง */
+    /* Always show burger menu */
     .burger-menu {
-        display: none !important;
+        display: flex !important;
+    }
+    
+    /* Adjust header-left spacing */
+    .header-left {
+        gap: 5px;
     }
 }
 
 /* Small Tablets and Mobile */
 @media (max-width: 768px) {
     .burger-menu {
-        display: block !important; /* แสดงเมนูบนอุปกรณ์ขนาดเล็ก */
+        display: flex !important; /* แสดง burger menu */
     }
     
     .sidebar {
@@ -465,19 +820,20 @@ body {
         left: -250px;
         top: 50px;
         bottom: 0;
-        width: 250px; /* ปรับความกว้างให้มากขึ้นเล็กน้อยเพื่อการแตะที่ดีขึ้น */
-        transition: left 0.3s ease;
+        width: 250px;
+        transition: left 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
         z-index: 1000;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        box-shadow: none;
     }
     
     .sidebar.active {
         left: 0;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.4);
     }
     
     .content {
-        width: 100%; /* บนมือถือ content กินพื้นที่เต็ม */
-        margin-left: 0; /* ไม่มี margin ทางซ้าย */
+        width: 100%;
+        margin-left: 0;
         padding: 15px;
     }
     
@@ -506,6 +862,28 @@ body {
         padding-top: 14px;
         padding-bottom: 14px;
     }
+    
+    .content-box {
+        padding: 15px;
+    }
+    
+    .data-table th, .data-table td {
+        padding: 10px;
+    }
+    
+    /* ปรับ nav buttons */
+    .nav-buttons {
+        gap: 5px;
+    }
+    
+    .nav-button, .logout-btn {
+        padding: 5px;
+    }
+    
+    /* Adjust header-left spacing for mobile */
+    .header-left {
+        gap: 3px;
+    }
 }
 
 /* Mobile Phones */
@@ -523,7 +901,7 @@ body {
     }
     
     .content-box {
-        padding: 15px;
+        padding: 12px;
     }
     
     .nav-button {
@@ -535,7 +913,7 @@ body {
     }
     
     .data-table th, .data-table td {
-        padding: 6px 8px;
+        padding: 8px;
     }
     
     .search-input, .search-btn, .action-btn {
@@ -558,20 +936,36 @@ body {
     
     /* เพิ่มความชัดเจนในการแตะที่เมนู */
     .menu-item:active, .submenu-item:active {
-        background-color: rgba(0, 162, 232, 0.25);
+        background-color: rgba(0, 162, 232, 0.3);
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    /* Even tighter spacing on small devices */
+    .header-left {
+        gap: 2px;
+    }
+    
+    .logo {
+        gap: 3px;
     }
 }
 
 /* Very Small Phones */
 @media (max-width: 360px) {
     .header {
-        height: auto;
+        padding: 8px;
         min-height: 45px;
-        padding: 5px;
     }
     
     .logo {
         font-size: 14px;
+    }
+    
+    .logo-image {
+        height: 28px;
     }
     
     .menu-item {
@@ -580,7 +974,7 @@ body {
     }
     
     .submenu-item {
-        padding: 6px 10px 6px 25px;
+        padding: 8px 10px 8px 25px;
         font-size: 11px;
     }
     
@@ -593,45 +987,93 @@ body {
         font-size: 11px;
         padding: 3px 6px;
     }
+    
+    .burger-menu {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .burger-line {
+        width: 18px;
+    }
+    
+    /* Minimal spacing on very small devices */
+    .header-left {
+        gap: 1px;
+    }
 }
 
-/* Touch Device Optimization - แก้ไขส่วนนี้ */
+/* Touch Device Optimization */
 @media (hover: none) {
-    .submenu-item:hover {
+    /* ลบ hover effects สำหรับอุปกรณ์สัมผัส */
+    .submenu-item:hover, .menu-item:hover, .nav-button:hover, .logout-btn:hover {
         background-color: transparent;
     }
     
-    .submenu-item:active {
-        background-color: rgba(0, 162, 232, 0.25);
+    /* เพิ่ม active effects */
+    .submenu-item:active, .menu-item:active {
+        background-color: rgba(0, 162, 232, 0.3);
     }
     
-    .menu-item:hover {
-        background-color: transparent;
-    }
-    
-    .menu-item:active {
-        background-color: rgba(0, 162, 232, 0.25);
-    }
-    
-    /* เพิ่มเอฟเฟกต์การแตะที่ชัดเจน */
-    .menu-item:active, .submenu-item:active {
-        opacity: 0.8;
+    .nav-button:active, .logout-btn:active {
+        background-color: rgba(255, 255, 255, 0.2);
     }
     
     /* ปรับปรุงการแตะบนอุปกรณ์สัมผัส */
     .submenu-item {
-        padding: 14px 10px 14px 28px; /* เพิ่มความสูงเพื่อให้แตะได้ง่ายขึ้น */
+        padding: 14px 10px 14px 28px;
+    }
+    
+    /* เพิ่ม feedback สำหรับการแตะ */
+    .menu-item:active, .submenu-item:active, .nav-button:active, .logout-btn:active {
+        transform: scale(0.98);
+    }
+    
+    /* ปรับการเลื่อน sidebar */
+    .sidebar {
+        -webkit-overflow-scrolling: touch;
     }
 }
 
-/* Animation for loading */
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+/* การเข้าถึงด้วยคีย์บอร์ด */
+.menu-item:focus, .submenu-item:focus, .burger-menu:focus, .nav-button:focus, .logout-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #00a2e8;
 }
 
-.loading {
-    animation: pulse 1.5s infinite;
+.menu-item:focus-visible, .submenu-item:focus-visible, .burger-menu:focus-visible, .nav-button:focus-visible, .logout-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #00a2e8, 0 0 0 4px rgba(0, 162, 232, 0.3);
 }
 
+/* ปรับปรุงเอฟเฟกต์เมื่อโหลด */
+body.loaded .header,
+body.loaded .sidebar,
+body.loaded .content,
+body.loaded .content-box {
+    animation: fadeIn 0.5s ease;
+}
+
+/* เอฟเฟกต์ transition */
+.wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.page-transition.active {
+    opacity: 1;
+    pointer-events: all;
+}
