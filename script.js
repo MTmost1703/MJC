@@ -5,22 +5,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const content = document.getElementById('content');
     const logoutBtn = document.getElementById('logout-btn');
     const usernameDisplay = document.getElementById('username-display');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const touchFeedback = document.getElementById('touch-feedback');
     
-    // สร้าง overlay element สำหรับปิด sidebar เมื่อคลิกที่พื้นที่ว่าง
-    const sidebarOverlay = document.createElement('div');
-    sidebarOverlay.className = 'sidebar-overlay';
-    document.body.appendChild(sidebarOverlay);
-    
-    // ตัวแปรสำหรับเก็บ timeout ของการปิด sidebar อัตโนมัติ
+    // สร้างตัวแปรสำหรับเก็บ timeout ของการปิด sidebar อัตโนมัติ
     let sidebarTimeout;
+    // ตัวแปรสำหรับอนิเมชั่น
+    let isContentTransitioning = false;
+    
+    // Mark document as loaded for transition effects
+    document.body.classList.add('loaded');
     
     // Check login status - ตรวจสอบสถานะล็อกอินก่อนแสดงแดชบอร์ด
     checkLoginStatus();
     
+    // Initialize touch feedback effects
+    initTouchFeedback();
+    
     // Initialize dashboard functionality
     initializeDashboard();
     
-    // ======== LOGIN STATE MANAGEMENT ========
     // Function to check login status
     function checkLoginStatus() {
         const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
@@ -30,8 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Checking login status:", isLoggedIn ? "Logged in" : "Not logged in");
         
         if (!isLoggedIn) {
+            // Add transition effect
+            showPageTransition();
+            
             // Redirect to login page if not logged in
-            window.location.href = 'login.html';
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 300); // Delay for transition
             return;
         }
         
@@ -40,8 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
             usernameDisplay.textContent = storedUsername.toUpperCase();
             usernameDisplay.title = storedUsername; // เพิ่ม title attribute เพื่อแสดงชื่อเต็มเมื่อ hover
         }
-        
-        // ไม่เปิด submenu ใดๆ โดยอัตโนมัติ เพื่อให้ผู้ใช้ต้องคลิกที่เมนูหลักก่อน
         
         // หากไม่ใช่ admin แสดงข้อความแจ้งเตือน
         if (!isAdmin) {
@@ -71,21 +78,39 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear menu state
         localStorage.removeItem('activeMenus');
         
-        // Redirect to login page
-        window.location.href = 'login.html';
+        // Add transition
+        showPageTransition();
+        
+        // Redirect to login page after animation
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 300); // Delay to show transition
     }
     
     // Function to close sidebar completely
     function closeSidebar() {
-        if (sidebar) {
-            sidebar.classList.remove('active');
-            sidebar.style.left = '-250px';
-            sidebarOverlay.classList.remove('active');
-        }
+        if (!sidebar) return;
         
-        if (burgerMenu) {
-            burgerMenu.classList.remove('active');
-        }
+        // Add closing animation class
+        sidebar.classList.add('closing');
+        
+        // Change state after animation
+        setTimeout(() => {
+            sidebar.classList.remove('active');
+            sidebar.classList.remove('closing');
+            sidebar.style.left = '-250px';
+            
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.remove('active');
+            }
+            
+            if (burgerMenu) {
+                burgerMenu.classList.remove('active');
+            }
+            
+            // Re-enable body scrolling
+            document.body.style.overflow = '';
+        }, 50); // Short timeout for smoother animation
         
         // ยกเลิก timeout การปิดอัตโนมัติ
         clearTimeout(sidebarTimeout);
@@ -96,6 +121,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e && e.cancelable) {
             e.preventDefault();
             e.stopPropagation();
+        }
+        
+        // Create ripple effect if clicked
+        if (e && e.type === 'click' && burgerMenu) {
+            createRippleEffect(burgerMenu, e);
         }
         
         if (burgerMenu) {
@@ -112,7 +142,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // ถ้า sidebar กำลังปิดอยู่ ให้เปิด
                 sidebar.classList.add('active');
                 sidebar.style.left = '0';
-                sidebarOverlay.classList.add('active');
+                
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.add('active');
+                }
+                
+                // ล็อค scrolling เมื่อเปิด sidebar บนมือถือ
+                if (window.innerWidth <= 768) {
+                    document.body.style.overflow = 'hidden';
+                }
                 
                 // ตั้งเวลาปิดอัตโนมัติหลังจากไม่ได้ใช้งาน
                 setupSidebarAutoClose();
@@ -130,192 +168,244 @@ document.addEventListener('DOMContentLoaded', function() {
             
             sidebarTimeout = setTimeout(() => {
                 if (sidebar && sidebar.classList.contains('active')) {
-                    closeSidebar();
+                    // แสดงการแจ้งเตือนว่ากำลังจะปิด sidebar
+                    showSidebarCloseNotification().then(() => {
+                        closeSidebar();
+                    });
                 }
             }, 60000); // 60 วินาที
         }
     }
     
-    // Function to save menu state
-    function saveMenuState() {
-        // เก็บข้อมูลเมนูที่เปิดอยู่
-        const activeMenus = [];
-        
-        document.querySelectorAll('.menu-item.active').forEach(menuItem => {
-            activeMenus.push(menuItem.getAttribute('data-menu'));
+    // Show countdown notification before auto-closing
+    function showSidebarCloseNotification() {
+        return new Promise((resolve) => {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.sidebar-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = 'sidebar-notification';
+            notification.textContent = 'Menu will close automatically in 5 seconds...';
+            
+            // Add to DOM
+            document.body.appendChild(notification);
+            
+            // Resolve after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.remove();
+                    resolve();
+                }, 300);
+            }, 5000);
         });
+    }
+    
+    // Initialize touch feedback
+    function initTouchFeedback() {
+        if (!touchFeedback) return;
         
-        // เก็บลงใน localStorage
-        if (activeMenus.length > 0) {
-            localStorage.setItem('activeMenus', JSON.stringify(activeMenus));
-        }
+        // Listen for touches/clicks on menu items and buttons
+        document.addEventListener('click', function(e) {
+            // Only on mobile/tablet
+            if (window.innerWidth <= 768) {
+                const target = e.target;
+                const isMenuOrButton = 
+                    target.classList.contains('menu-item') || 
+                    target.classList.contains('submenu-item') ||
+                    target.classList.contains('logout-btn') ||
+                    target.classList.contains('nav-button') ||
+                    target.classList.contains('burger-menu') ||
+                    target.closest('.menu-item') ||
+                    target.closest('.submenu-item') ||
+                    target.closest('.logout-btn') ||
+                    target.closest('.nav-button') ||
+                    target.closest('.burger-menu');
+                
+                if (isMenuOrButton) {
+                    createRippleEffect(target, e);
+                }
+            }
+        });
     }
     
-    // ฟังก์ชันนี้ถูกปรับเพื่อไม่โหลดสถานะเมนูเดิมเมื่อเริ่มต้น - ต้องการให้เริ่มต้นทุกครั้งโดยไม่เปิด submenu
-    function loadMenuState() {
-        // ฟังก์ชั่นนี้ถูกปรับให้ไม่ทำงานเพื่อไม่ให้โหลดสถานะเมนูเดิม
-        return;
+    // Create ripple effect for touch/click feedback
+    function createRippleEffect(target, e) {
+        if (!touchFeedback) return;
+        
+        // Get position
+        const x = e.clientX || (e.touches && e.touches[0].clientX) || target.getBoundingClientRect().left + target.offsetWidth / 2;
+        const y = e.clientY || (e.touches && e.touches[0].clientY) || target.getBoundingClientRect().top + target.offsetHeight / 2;
+        
+        // Position the feedback element
+        touchFeedback.style.left = `${x}px`;
+        touchFeedback.style.top = `${y}px`;
+        
+        // Trigger animation
+        touchFeedback.classList.remove('active');
+        void touchFeedback.offsetWidth; // Force reflow
+        touchFeedback.classList.add('active');
+        
+        // Remove class after animation completes
+        setTimeout(() => {
+            touchFeedback.classList.remove('active');
+        }, 600);
     }
     
-    // ======== DASHBOARD INITIALIZATION ========
     // Function to initialize dashboard functionality
     function initializeDashboard() {
-        // Toggle sidebar with burger menu - แก้ไขส่วนนี้
-        if (burgerMenu && sidebar) {
-            // ลบ event listener เดิมที่อาจมีปัญหา
-            burgerMenu.removeEventListener('click', toggleSidebar);
+        // Toggle sidebar with burger menu
+        if (burgerMenu) {
+            burgerMenu.addEventListener('click', toggleSidebar);
             
-            // เพิ่ม event listener ใหม่เพื่อความมั่นใจ
-            ['click', 'touchstart'].forEach(eventType => {
-                burgerMenu.addEventListener(eventType, function(e) {
-                    // ป้องกันการทำงานซ้ำซ้อนและตรวจสอบว่า event สามารถยกเลิกได้หรือไม่
-                    if (eventType === 'touchstart' && e.cancelable) {
-                        e.preventDefault();
-                    }
-                    
+            // Keyboard accessibility
+            burgerMenu.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
                     toggleSidebar(e);
-                }, { passive: false });
+                }
             });
         }
         
-        // เพิ่ม event listener เพื่อปิด sidebar เมื่อคลิกที่ overlay
+        // Close sidebar when overlay is clicked
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', function(e) {
-                if (e.cancelable) {
-                    e.preventDefault();
+                if (e.target === sidebarOverlay) {
+                    closeSidebar();
                 }
-                
-                if (sidebar && sidebar.classList.contains('active')) {
-                    toggleSidebar();
-                }
-            }, { passive: false });
+            });
         }
-        
-        // ปิด sidebar เมื่อคลิกที่พื้นที่ว่างนอก sidebar
-        document.addEventListener('click', function(e) {
-            // ตรวจสอบว่าคลิกที่พื้นที่นอก sidebar และ sidebar กำลังแสดงอยู่
-            if (sidebar && burgerMenu && 
-                !sidebar.contains(e.target) && 
-                !burgerMenu.contains(e.target) && 
-                sidebar.classList.contains('active') &&
-                window.innerWidth <= 768) {
-                
-                toggleSidebar();
-            }
-        });
-        
-        // เพิ่ม event listener สำหรับการรีเซ็ตเวลาปิดอัตโนมัติเมื่อมีการใช้งาน
-        document.addEventListener('mousemove', setupSidebarAutoClose);
-        document.addEventListener('touchstart', setupSidebarAutoClose);
-        document.addEventListener('click', setupSidebarAutoClose);
         
         // Toggle submenu on menu item click
         document.querySelectorAll('.menu-item').forEach(item => {
-            // เพิ่ม event listener ทั้ง click และ touchstart
-            ['click', 'touchstart'].forEach(eventType => {
-                item.addEventListener(eventType, function(e) {
-                    if (eventType === 'touchstart' && e.cancelable) {
-                        e.preventDefault(); // ป้องกันการทำงานซ้ำซ้อนเฉพาะสำหรับ touchstart ที่ยกเลิกได้
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const menuName = this.getAttribute('data-menu');
+                const submenu = document.getElementById(`${menuName}-submenu`);
+                
+                if (!submenu) {
+                    console.error(`Submenu element not found: ${menuName}-submenu`);
+                    return;
+                }
+                
+                // Create ripple effect
+                createRippleEffect(this, e);
+                
+                // ปิดทุก submenu ก่อน (ยกเว้นเมนูปัจจุบัน)
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    if (menu.id !== `${menuName}-submenu`) {
+                        menu.classList.remove('active');
+                        menu.style.maxHeight = '0';
                     }
-                    
-                    const menuName = this.getAttribute('data-menu');
-                    const submenu = document.getElementById(`${menuName}-submenu`);
-                    
-                    if (!submenu) {
-                        console.error(`Submenu element not found: ${menuName}-submenu`);
-                        return;
+                });
+                
+                document.querySelectorAll('.menu-item').forEach(menuItem => {
+                    if (menuItem !== this) {
+                        menuItem.classList.remove('active');
+                        menuItem.setAttribute('aria-expanded', 'false');
                     }
+                });
+                
+                // สลับ active state (เปิด/ปิด submenu ปัจจุบัน)
+                this.classList.toggle('active');
+                submenu.classList.toggle('active');
+                
+                // อัปเดต aria-expanded สำหรับการเข้าถึง
+                this.setAttribute('aria-expanded', this.classList.contains('active') ? 'true' : 'false');
+                
+                if (submenu.classList.contains('active')) {
+                    submenu.style.maxHeight = '2000px';
                     
-                    // ตรวจสอบว่า submenu นี้กำลังแสดงอยู่หรือไม่
-                    const isActive = submenu.classList.contains('active');
-                    
-                    // ปิดทุก submenu และลบคลาส active จากทุกเมนู (ยกเว้นเมนูปัจจุบัน)
-                    document.querySelectorAll('.submenu').forEach(menu => {
-                        if (menu.id !== `${menuName}-submenu`) {
-                            menu.classList.remove('active');
-                            menu.style.maxHeight = '0';
+                    // Smooth scroll to ensure menu item is visible
+                    if (window.innerWidth <= 768) {
+                        const itemPosition = this.getBoundingClientRect().top;
+                        const offset = itemPosition - 60; // ให้มีพื้นที่ด้านบน
+                        
+                        if (offset < 0) {
+                            sidebar.scrollBy({
+                                top: offset,
+                                behavior: 'smooth'
+                            });
                         }
-                    });
-                    
-                    document.querySelectorAll('.menu-item').forEach(menuItem => {
-                        if (menuItem !== this) {
-                            menuItem.classList.remove('active');
-                        }
-                    });
-                    
-                    // สลับ active state ของ submenu ปัจจุบัน (เปิด/ปิด)
-                    if (submenu) {
-                        // รีเซ็ตสไตล์เพื่อรับรองว่า CSS ทำงานถูกต้อง
-                        submenu.style.width = '100%';
-                        submenu.style.position = 'relative';
-                        submenu.style.left = '0';
-                        submenu.style.right = '0';
-                        
-                        submenu.classList.toggle('active');
-                        this.classList.toggle('active');
-                        
-                        if (submenu.classList.contains('active')) {
-                            submenu.style.maxHeight = '2000px';
-                        } else {
-                            submenu.style.maxHeight = '0';
-                        }
-                        
-                        // บันทึกสถานะเมนู
-                        saveMenuState();
-                        
-                        // เพื่อตรวจสอบว่า submenu แสดงผลอย่างถูกต้อง
-                        console.log(`Toggle menu: ${menuName}, active: ${submenu.classList.contains('active')}`);
                     }
-                    
-                    // ป้องกันการทำงานซ้ำซ้อนหลังจากเสร็จสิ้นการทำงาน
-                    if (eventType === 'touchstart' && e.cancelable) {
-                        e.stopPropagation(); 
-                    }
-                }, { passive: false });
+                } else {
+                    submenu.style.maxHeight = '0';
+                }
+                
+                // รีเซ็ตเวลาปิดอัตโนมัติ (ถ้ามี)
+                setupSidebarAutoClose();
+                
+                // บันทึกสถานะเมนู
+                saveMenuState();
+            });
+            
+            // Keyboard accessibility for menu items
+            item.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
             });
         });
         
         // Handle submenu item click
         document.querySelectorAll('.submenu-item').forEach(item => {
-            // เพิ่ม event listener ทั้ง click และ touchstart
-            ['click', 'touchstart'].forEach(eventType => {
-                item.addEventListener(eventType, function(e) {
-                    if (eventType === 'touchstart' && e.cancelable) {
-                        e.preventDefault(); // ป้องกันการทำงานซ้ำซ้อนเฉพาะสำหรับ touchstart ที่ยกเลิกได้
-                    }
-                    
-                    if (e.cancelable) {
-                        e.stopPropagation(); // Prevent event bubbling to parent menu item
-                    }
-                    
-                    // Highlight selected submenu item
-                    document.querySelectorAll('.submenu-item').forEach(subItem => {
-                        subItem.classList.remove('selected');
-                    });
-                    this.classList.add('selected');
-                    
-                    const parentMenu = this.closest('.submenu').id.replace('-submenu', '');
-                    const itemName = this.textContent.trim();
-                    
-                    // For mobile, close the sidebar after selection
-                    if (window.innerWidth <= 768 && sidebar) {
-                        toggleSidebar(); // ใช้ฟังก์ชัน toggleSidebar แทนการเรียกใช้โค้ดซ้ำ
-                    }
-                    
-                    // Load content
-                    loadContent(parentMenu, itemName);
-                    
-                    // ป้องกันการทำงานซ้ำซ้อนหลังจากเสร็จสิ้นการทำงาน
-                    if (eventType === 'touchstart' && e.cancelable) {
-                        return false;
-                    }
-                }, { passive: false });
+            item.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling to parent menu item
+                
+                // Highlight selected submenu item
+                document.querySelectorAll('.submenu-item').forEach(subItem => {
+                    subItem.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                
+                // Create ripple effect
+                createRippleEffect(this, e);
+                
+                // Get menu and item name
+                const parentMenu = this.closest('.submenu').id.replace('-submenu', '');
+                const itemName = this.textContent.trim();
+                
+                // For mobile, close the sidebar after selection
+                if (window.innerWidth <= 768 && sidebar) {
+                    // Small delay to show selection before closing
+                    setTimeout(() => {
+                        closeSidebar();
+                    }, 300);
+                }
+                
+                // Load content with transition
+                loadContent(parentMenu, itemName);
+                
+                // Reset auto-close timer
+                setupSidebarAutoClose();
+            });
+            
+            // Keyboard accessibility for submenu items
+            item.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
             });
         });
         
         // Add logout event listener
         if (logoutBtn) {
             logoutBtn.addEventListener('click', handleLogout);
+            
+            // Keyboard accessibility
+            logoutBtn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleLogout(e);
+                }
+            });
         }
         
         // Handle window resize for responsive sidebar
@@ -330,20 +420,24 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         window.addEventListener('resize', debounce(function() {
-            checkScreenSize(); // เรียกใช้ฟังก์ชัน checkScreenSize เมื่อมีการปรับขนาดหน้าจอ
-        }, 250)); // debounce 250ms
+            checkScreenSize();
+        }, 250));
+        
+        // Close sidebar with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar && sidebar.classList.contains('active')) {
+                closeSidebar();
+            }
+        });
         
         // เรียกใช้ฟังก์ชัน checkScreenSize เมื่อโหลดหน้า
         checkScreenSize();
         
-        // ปิดใช้งานการโหลดสถานะเมนูที่เคยบันทึกไว้เพื่อให้เริ่มต้นใหม่ทุกครั้ง
-        // loadMenuState();
-        
-        // เรียกใช้ฟังก์ชันเพื่อปิด submenu ทั้งหมดเมื่อเริ่มต้น
+        // ปิด submenu ทั้งหมดเมื่อเริ่มต้น
         closeAllSubmenus();
     }
     
-    // เพิ่มฟังก์ชันใหม่เพื่อปิด submenu ทั้งหมดเมื่อเริ่มต้น
+    // Function to close all submenus
     function closeAllSubmenus() {
         document.querySelectorAll('.submenu').forEach(submenu => {
             submenu.classList.remove('active');
@@ -352,29 +446,59 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.querySelectorAll('.menu-item').forEach(menuItem => {
             menuItem.classList.remove('active');
+            menuItem.setAttribute('aria-expanded', 'false');
         });
     }
     
-    // ฟังก์ชันเพื่อตรวจสอบขนาดหน้าจอและปรับแต่ง UI ตามขนาด
+    // Function to save menu state
+    function saveMenuState() {
+        const activeMenus = [];
+        
+        document.querySelectorAll('.menu-item.active').forEach(menuItem => {
+            activeMenus.push(menuItem.getAttribute('data-menu'));
+        });
+        
+        if (activeMenus.length > 0) {
+            localStorage.setItem('activeMenus', JSON.stringify(activeMenus));
+        } else {
+            localStorage.removeItem('activeMenus');
+        }
+    }
+    
+    // Function to check screen size and adjust UI
     function checkScreenSize() {
         const windowWidth = window.innerWidth;
         
         if (windowWidth > 768) {
-            if (burgerMenu) burgerMenu.style.display = 'none';
             if (sidebar) {
                 sidebar.style.removeProperty('left');
                 sidebar.classList.remove('active');
             }
             if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
         } else {
-            if (burgerMenu) burgerMenu.style.display = 'block';
             if (sidebar && !sidebar.classList.contains('active')) {
                 sidebar.style.left = '-250px';
             }
         }
     }
     
-    // ======== CONTENT LOADING ========
+    // Function to show page transition
+    function showPageTransition() {
+        let transition = document.querySelector('.page-transition');
+        
+        if (!transition) {
+            transition = document.createElement('div');
+            transition.className = 'page-transition';
+            document.body.appendChild(transition);
+        }
+        
+        // Trigger animation
+        setTimeout(() => {
+            transition.classList.add('active');
+        }, 10);
+    }
+    
     // Function to load content based on menu selection
     function loadContent(section, page) {
         if (!content) {
@@ -382,16 +506,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Prevent multiple simultaneous transitions
+        if (isContentTransitioning) return;
+        isContentTransitioning = true;
+        
         // Log the requested content for debugging
         console.log("Loading content for section:", section, "page:", page);
         
-        // Display loading indicator
-        content.innerHTML = '<div class="loading">Loading content...</div>';
+        // Add transition out class
+        content.style.opacity = '0';
+        content.style.transform = 'translateY(10px)';
         
-        // Short delay to show loading indicator
+        // Display loading indicator after short delay
         setTimeout(() => {
             try {
-                // Check if it's the Branch page
+                // Determine which content to load
                 if (section === 'master' && page === 'Branch') {
                     content.innerHTML = `
                         <h2>${section.charAt(0).toUpperCase() + section.slice(1)} > ${page}</h2>
@@ -418,6 +547,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </thead>
                                     <tbody>
                                         <!-- ข้อมูลจะถูกเพิ่มด้วย JavaScript -->
+                                        <tr>
+                                            <td colspan="14" class="loading">Loading branch data...</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -426,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <button id="prev-page" class="page-btn" disabled>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                 </button>
-                                <span id="page-info">หน้า 1 จาก 1</span>
+                                <span id="page-info">Page 1 of 1</span>
                                 <button id="next-page" class="page-btn" disabled>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </button>
@@ -434,13 +566,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     `;
                     
-                    // Initialize branch table
+                    // Initialize branch table with animation
                     setTimeout(() => {
                         try {
                             initBranchTable();
                         } catch (err) {
                             console.error("Error initializing branch table:", err);
-                            document.querySelector('#branch-table tbody').innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 20px;">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง</td></tr>';
+                            document.querySelector('#branch-table tbody').innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 20px;">An error occurred while loading data. Please try again.</td></tr>';
                         }
                     }, 100);
                 } else {
@@ -453,25 +585,36 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     `;
                 }
+                
+                // Fade in content after data is loaded
+                setTimeout(() => {
+                    content.style.opacity = '1';
+                    content.style.transform = 'translateY(0)';
+                    isContentTransitioning = false;
+                }, 100);
             } catch (err) {
                 console.error("Error loading content:", err);
                 content.innerHTML = `
                     <h2>Error</h2>
                     <div class="content-box">
-                        <p>เกิดข้อผิดพลาดในการโหลดเนื้อหา กรุณาลองใหม่อีกครั้ง</p>
-                        <p>รายละเอียดข้อผิดพลาด: ${err.message}</p>
+                        <p>An error occurred while loading content. Please try again.</p>
+                        <p>Error details: ${err.message}</p>
                     </div>
                 `;
+                
+                // Restore visibility
+                content.style.opacity = '1';
+                content.style.transform = 'translateY(0)';
+                isContentTransitioning = false;
             }
-        }, 300); // เพิ่มเวลาดีเลย์เพื่อให้เห็นการโหลดชัดเจนขึ้น
+        }, 200);
     }
     
-    // ======== BRANCH DATA MANAGEMENT ========
     // Function to initialize branch table
     function initBranchTable() {
         console.log("Initializing branch table...");
         
-        // Branch data
+        // Branch data - would come from API in real implementation
         const branchData = [
             {id2: "BK", id3: "BKE", id4: "3001", branchNameEN: "Bangkae", branchNameTH: "บางแค", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.32.49", serverNameDB: "bkap-vbrapp02", screen: 10, kiosk: 0, seat: 18806, openDate: "19940616", status: "Active"},
             {id2: "SC", id3: "SCS", id4: "3003", branchNameEN: "Seacon", branchNameTH: "ซีคอน", serverIPApp: "", serverNameApp: "", serverIPDB: "10.24.33.52", serverNameDB: "scsp-vbrapp02", screen: 12, kiosk: 0, seat: 20047, openDate: "19940907", status: "Active"},
@@ -503,19 +646,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set initial values
         let currentPage = 1;
-        const rowsPerPage = 15;
+        const rowsPerPage = 10; // Reduced for better mobile viewing
         let filteredData = [...branchData];
         let sortField = 'id2';
         let sortDirection = 'asc';
         
-        // Function to render table data
+        // Function to render table data with animation
         function renderTable() {
             console.log("Rendering table with", filteredData.length, "branches");
             
             // Calculate total pages
             const totalPages = Math.ceil(filteredData.length / rowsPerPage);
             
-            // Reset table and add new data
+            // Reset table
             tableBody.innerHTML = '';
             
             // Calculate rows to display
@@ -544,10 +687,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Display data
+            // Display data with staggered animation
             for (let i = startIndex; i < endIndex; i++) {
                 const row = sortedData[i];
                 const tr = document.createElement('tr');
+                
+                // Add staggered animation
+                tr.style.opacity = '0';
+                tr.style.animation = `fadeIn 0.3s ease forwards ${(i - startIndex) * 0.05}s`;
                 
                 tr.innerHTML = `
                     <td>${row.id2}</td>
@@ -571,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update page info
             if (pageInfo) {
-                pageInfo.textContent = `หน้า ${currentPage} จาก ${totalPages || 1}`;
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
             }
             
             // Update button states
@@ -593,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show message if no data found
             if (filteredData.length === 0) {
                 const noDataRow = document.createElement('tr');
-                noDataRow.innerHTML = '<td colspan="14" style="text-align: center; padding: 20px;">ไม่พบข้อมูล</td>';
+                noDataRow.innerHTML = '<td colspan="14" style="text-align: center; padding: 20px;">No data found</td>';
                 tableBody.appendChild(noDataRow);
             }
         }
@@ -614,10 +761,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Pagination buttons
+        // Pagination buttons with visual feedback
         if (prevPageBtn) {
-            prevPageBtn.addEventListener('click', () => {
+            prevPageBtn.addEventListener('click', function(e) {
                 if (currentPage > 1) {
+                    createRippleEffect(this, e);
                     currentPage--;
                     renderTable();
                 }
@@ -625,22 +773,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (nextPageBtn) {
-            nextPageBtn.addEventListener('click', () => {
+            nextPageBtn.addEventListener('click', function(e) {
                 const totalPages = Math.ceil(filteredData.length / rowsPerPage);
                 if (currentPage < totalPages) {
+                    createRippleEffect(this, e);
                     currentPage++;
                     renderTable();
                 }
             });
         }
         
-        // Column sorting
+        // Column sorting with visual feedback
         if (tableHeaders) {
             tableHeaders.forEach(th => {
-                th.addEventListener('click', () => {
-                    const field = th.getAttribute('data-sort');
+                th.addEventListener('click', function(e) {
+                    const field = this.getAttribute('data-sort');
                     
                     if (!field) return;
+                    
+                    // Create ripple effect
+                    createRippleEffect(this, e);
                     
                     if (field === sortField) {
                         // Toggle sort direction if same column clicked
@@ -656,29 +808,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Initialize table display
-        renderTable();
+        // Initialize table display with short delay for animation
+        setTimeout(() => {
+            renderTable();
+        }, 100);
     }
+});
 
-    // Fix the submenu display issue - added function to ensure submenus display correctly
-    function fixSubmenuDisplay() {
-        // Get all submenu elements
-        const allSubmenus = document.querySelectorAll('.submenu');
-        
-        // Apply correct styles to ensure proper display
-        allSubmenus.forEach(submenu => {
-            // Ensure correct width and positioning
-            submenu.style.width = '100%';
-            submenu.style.position = 'relative';
-            submenu.style.left = '0';
-            submenu.style.right = '0';
-            
-            // Make sure all submenus are closed on start
-            submenu.classList.remove('active');
-            submenu.style.maxHeight = '0';
-        });
+// Add transition styles for content
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .content {
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
     
-    // Call the fix function after a short delay to ensure DOM is fully loaded
-    setTimeout(fixSubmenuDisplay, 300);
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+</style>
+`);
+
+// Add fade effect to page load
+window.addEventListener('load', function() {
+    document.body.classList.add('loaded');
 });
