@@ -91,6 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeSidebar() {
         if (!sidebar) return;
         
+        // ไม่ปิด sidebar ถ้าอยู่บนคอมพิวเตอร์หรือโน้ตบุ๊ค
+        if (window.innerWidth > 768) {
+            return;  // แก้ไขตรงนี้: เพิ่มการตรวจสอบขนาดหน้าจอ
+        }
+        
         // Add closing animation class
         sidebar.classList.add('closing');
         
@@ -115,12 +120,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // ยกเลิก timeout การปิดอัตโนมัติ
         clearTimeout(sidebarTimeout);
     }
-    
     // Function to toggle sidebar
     function toggleSidebar(e) {
         if (e && e.cancelable) {
             e.preventDefault();
             e.stopPropagation();
+        }
+        
+        // ตรวจสอบขนาดหน้าจอ - ถ้าเป็นคอมพิวเตอร์หรือโน้ตบุ๊ค ให้ไม่ทำอะไร
+        if (window.innerWidth > 768) {
+            return; // แก้ไขตรงนี้: เพิ่มการตรวจสอบขนาดหน้าจอเพื่อไม่ทำงานบนคอมพิวเตอร์หรือโน้ตบุ๊ค
         }
         
         // Create ripple effect if clicked
@@ -176,7 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 60000); // 60 วินาที
         }
     }
-    
     // Show countdown notification before auto-closing
     function showSidebarCloseNotification() {
         return new Promise((resolve) => {
@@ -255,7 +263,84 @@ document.addEventListener('DOMContentLoaded', function() {
             touchFeedback.classList.remove('active');
         }, 600);
     }
+    // Show countdown notification before auto-closing
+    function showSidebarCloseNotification() {
+        return new Promise((resolve) => {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.sidebar-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = 'sidebar-notification';
+            notification.textContent = 'Menu will close automatically in 5 seconds...';
+            
+            // Add to DOM
+            document.body.appendChild(notification);
+            
+            // Resolve after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.remove();
+                    resolve();
+                }, 300);
+            }, 5000);
+        });
+    }
     
+    // Initialize touch feedback
+    function initTouchFeedback() {
+        if (!touchFeedback) return;
+        
+        // Listen for touches/clicks on menu items and buttons
+        document.addEventListener('click', function(e) {
+            // Only on mobile/tablet
+            if (window.innerWidth <= 768) {
+                const target = e.target;
+                const isMenuOrButton = 
+                    target.classList.contains('menu-item') || 
+                    target.classList.contains('submenu-item') ||
+                    target.classList.contains('logout-btn') ||
+                    target.classList.contains('nav-button') ||
+                    target.classList.contains('burger-menu') ||
+                    target.closest('.menu-item') ||
+                    target.closest('.submenu-item') ||
+                    target.closest('.logout-btn') ||
+                    target.closest('.nav-button') ||
+                    target.closest('.burger-menu');
+                
+                if (isMenuOrButton) {
+                    createRippleEffect(target, e);
+                }
+            }
+        });
+    }
+    
+    // Create ripple effect for touch/click feedback
+    function createRippleEffect(target, e) {
+        if (!touchFeedback) return;
+        
+        // Get position
+        const x = e.clientX || (e.touches && e.touches[0].clientX) || target.getBoundingClientRect().left + target.offsetWidth / 2;
+        const y = e.clientY || (e.touches && e.touches[0].clientY) || target.getBoundingClientRect().top + target.offsetHeight / 2;
+        
+        // Position the feedback element
+        touchFeedback.style.left = `${x}px`;
+        touchFeedback.style.top = `${y}px`;
+        
+        // Trigger animation
+        touchFeedback.classList.remove('active');
+        void touchFeedback.offsetWidth; // Force reflow
+        touchFeedback.classList.add('active');
+        
+        // Remove class after animation completes
+        setTimeout(() => {
+            touchFeedback.classList.remove('active');
+        }, 600);
+    }
     // Function to initialize dashboard functionality
     function initializeDashboard() {
         // Toggle sidebar with burger menu
@@ -343,7 +428,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // บันทึกสถานะเมนู
                 saveMenuState();
             });
-            
             // Keyboard accessibility for menu items
             item.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -435,6 +519,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // ปิด submenu ทั้งหมดเมื่อเริ่มต้น
         closeAllSubmenus();
+        
+        // เพิ่มบรรทัดนี้เพื่อตรวจสอบอีกครั้งหลังจากปิด submenu
+        checkScreenSize();  // แก้ไขตรงนี้: เพิ่มการเรียก checkScreenSize ซ้ำอีกครั้ง
     }
     
     // Function to close all submenus
@@ -449,7 +536,6 @@ document.addEventListener('DOMContentLoaded', function() {
             menuItem.setAttribute('aria-expanded', 'false');
         });
     }
-    
     // Function to save menu state
     function saveMenuState() {
         const activeMenus = [];
@@ -470,19 +556,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const windowWidth = window.innerWidth;
         
         if (windowWidth > 768) {
+            // บนคอมพิวเตอร์หรือโน้ตบุ๊ค ให้แสดง sidebar ตลอดเวลา
             if (sidebar) {
-                sidebar.style.removeProperty('left');
+                sidebar.style.left = '0';
                 sidebar.classList.remove('active');
+                // เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่า sidebar จะมีขนาดถูกต้อง
+                sidebar.style.width = windowWidth >= 1200 ? '250px' : '220px';  // แก้ไขตรงนี้: เพิ่มการกำหนดขนาดความกว้าง
             }
             if (sidebarOverlay) sidebarOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            
+            // ปรับ content ให้มีพื้นที่สำหรับ sidebar
+            if (content) {
+                content.style.width = windowWidth >= 1200 ? 'calc(100% - 250px)' : 'calc(100% - 220px)';  // แก้ไขตรงนี้: เพิ่มการปรับขนาด content
+                content.style.marginLeft = windowWidth >= 1200 ? '250px' : '220px';  // แก้ไขตรงนี้: เพิ่มการปรับ margin ของ content
+            }
         } else {
+            // บนมือถือ ให้ซ่อน sidebar เมื่อไม่ได้กดเปิด
             if (sidebar && !sidebar.classList.contains('active')) {
                 sidebar.style.left = '-250px';
+                sidebar.style.width = '250px'; // มือถือใช้ความกว้าง 250px เสมอ  // แก้ไขตรงนี้: กำหนดค่าความกว้างสำหรับมือถือ
+            }
+            
+            // ปรับ content ให้ใช้พื้นที่เต็มหน้าจอ
+            if (content) {
+                content.style.width = '100%';  // แก้ไขตรงนี้: ปรับขนาด content สำหรับมือถือ
+                content.style.marginLeft = '0';  // แก้ไขตรงนี้: ปรับ margin สำหรับมือถือ
             }
         }
     }
-    
     // Function to show page transition
     function showPageTransition() {
         let transition = document.querySelector('.page-transition');
@@ -609,7 +711,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 200);
     }
-    
     // Function to initialize branch table
     function initBranchTable() {
         console.log("Initializing branch table...");
@@ -650,7 +751,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let filteredData = [...branchData];
         let sortField = 'id2';
         let sortDirection = 'asc';
-        
         // Function to render table data with animation
         function renderTable() {
             console.log("Rendering table with", filteredData.length, "branches");
@@ -760,7 +860,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return dateStr;
             }
         }
-        
         // Pagination buttons with visual feedback
         if (prevPageBtn) {
             prevPageBtn.addEventListener('click', function(e) {
@@ -817,19 +916,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Add transition styles for content
 document.head.insertAdjacentHTML('beforeend', `
-<style>
-    .content {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
+    <style>
+        .content {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+    `);
     
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-</style>
-`);
-
-// Add fade effect to page load
-window.addEventListener('load', function() {
-    document.body.classList.add('loaded');
-});
+    // Add fade effect to page load
+    window.addEventListener('load', function() {
+        document.body.classList.add('loaded');
+    });
