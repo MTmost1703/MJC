@@ -171,28 +171,6 @@ body {
     background-color: #00a2e8;
 }
 
-/* ปรับเพื่อให้ burger menu แสดงในทุกขนาดหน้าจอ */
-@media (min-width: 1200px) {
-    .burger-menu {
-        display: flex !important; /* แสดง burger menu ในทุกขนาดหน้าจอ */
-    }
-}
-
-/* Medium Screens */
-@media (min-width: 769px) and (max-width: 1199px) {
-    .burger-menu {
-        display: flex !important; /* แสดง burger menu ในทุกขนาดหน้าจอ */
-    }
-}
-
-/* ปรับขนาดในโหมดมือถือ */
-@media (max-width: 768px) {
-    .burger-menu {
-        display: flex !important; /* แสดง burger menu */
-        /* ไม่จำเป็นต้องเปลี่ยนตำแหน่งเพราะอยู่ที่ตำแหน่งเดียวกันในทุกขนาดหน้าจอ */
-    }
-}
-
 /* Sidebar overlay */
 .sidebar-overlay {
     display: none;
@@ -749,6 +727,8 @@ body {
 @media (min-width: 1200px) {
     .sidebar {
         width: 250px;
+        left: 0 !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     }
     
     .content {
@@ -768,9 +748,9 @@ body {
         padding: 30px;
     }
     
-    /* Always show burger menu */
+    /* ซ่อน burger menu บนหน้าจอขนาดใหญ่ */
     .burger-menu {
-        display: flex !important;
+        display: none !important;
     }
     
     /* Adjust header-left spacing */
@@ -783,6 +763,8 @@ body {
 @media (min-width: 769px) and (max-width: 1199px) {
     .sidebar {
         width: 220px;
+        left: 0 !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     }
     
     .content {
@@ -798,9 +780,9 @@ body {
         font-size: 16px;
     }
     
-    /* Always show burger menu */
+    /* ซ่อน burger menu บนหน้าจอขนาดกลาง */
     .burger-menu {
-        display: flex !important;
+        display: none !important;
     }
     
     /* Adjust header-left spacing */
@@ -1037,6 +1019,46 @@ body {
 
 /* การเข้าถึงด้วยคีย์บอร์ด */
 .menu-item:focus, .submenu-item:focus, .burger-menu:focus, .nav-button:focus, .logout-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #00a2e8;
+}
+
+.menu-item:focus-visible, .submenu-item:focus-visible, .burger-menu:focus-visible, .nav-button:focus-visible, .logout-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #00a2e8, 0 0 0 4px rgba(0, 162, 232, 0.3);
+}
+
+/* ปรับปรุงเอฟเฟกต์เมื่อโหลด */
+body.loaded .header,
+body.loaded .sidebar,
+body.loaded .content,
+body.loaded .content-box {
+    animation: fadeIn 0.5s ease;
+}
+
+/* เอฟเฟกต์ transition */
+.wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.page-transition.active {
+    opacity: 1;
+    pointer-events: all;
+}menu:focus, .nav-button:focus, .logout-btn:focus {
     outline: none;
     box-shadow: 0 0 0 2px #00a2e8;
 }
